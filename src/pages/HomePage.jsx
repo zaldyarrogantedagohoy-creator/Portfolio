@@ -1,4 +1,3 @@
-
 import { useEffect, useState, useRef } from 'react';
 import { supabase } from '../supabaseClient';
 import '../styles/HomePage.css';
@@ -11,6 +10,7 @@ import cert3Img from '../assets/images/certificate-3.png';
 import cert4Img from '../assets/images/certificate-4.png';
 import cert5Img from '../assets/images/certificate-5.png';
 import cert6Img from '../assets/images/certificate-6.png';
+import heroVid  from '../assets/Videos/Hero_Vid.mp4';
 
 const SOCIAL_LINKS = {
   github:   'https://github.com/zaldyarrogantedagohoy-creator',
@@ -266,6 +266,18 @@ const IconChevronUp = ({ size = 16, color = 'currentColor' }) => (
   </svg>
 );
 
+const IconChevronLeft = ({ size = 20, color = 'currentColor' }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" aria-hidden="true">
+    <polyline points="15,18 9,12 15,6" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+  </svg>
+);
+
+const IconChevronRight = ({ size = 20, color = 'currentColor' }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" aria-hidden="true">
+    <polyline points="9,18 15,12 9,6" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+  </svg>
+);
+
 const IconSpinner = ({ size = 16, color = 'currentColor' }) => (
   <svg width={size} height={size} viewBox="0 0 24 24" fill="none" aria-hidden="true" style={{ animation: 'spin 1s linear infinite' }}>
     <circle cx="12" cy="12" r="9" stroke={color} strokeWidth="2" strokeOpacity="0.25"/>
@@ -276,6 +288,13 @@ const IconSpinner = ({ size = 16, color = 'currentColor' }) => (
 const IconHeart = ({ size = 13, color = 'currentColor' }) => (
   <svg width={size} height={size} viewBox="0 0 24 24" fill={color} aria-hidden="true">
     <path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/>
+  </svg>
+);
+
+const IconPlay = ({ size = 48, color = 'currentColor' }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" aria-hidden="true">
+    <circle cx="12" cy="12" r="10" stroke={color} strokeWidth="1.2" fill={color} fillOpacity="0.1"/>
+    <polygon points="10,8 17,12 10,16" fill={color} opacity="0.9"/>
   </svg>
 );
 
@@ -620,6 +639,238 @@ const FileViewer = ({ file, onClose }) => {
   );
 };
 
+/* ══════════════════════════════════════════════════════════════
+   HERO SLIDESHOW COMPONENT
+══════════════════════════════════════════════════════════════ */
+const HeroSlideshow = ({ children, scrollToSection, socialItems, stackIcons }) => {
+  const [activeSlide, setActiveSlide] = useState(0);
+  const [isTransitioning, setIsTransitioning] = useState(false);
+  const [direction, setDirection] = useState('next');
+  const autoRef = useRef(null);
+  const TOTAL_SLIDES = 3;
+
+  const goTo = (index, dir = 'next') => {
+    if (isTransitioning || index === activeSlide) return;
+    setDirection(dir);
+    setIsTransitioning(true);
+    setTimeout(() => {
+      setActiveSlide(index);
+      setIsTransitioning(false);
+    }, 400);
+  };
+
+  const prev = () => goTo((activeSlide - 1 + TOTAL_SLIDES) % TOTAL_SLIDES, 'prev');
+  const next = () => goTo((activeSlide + 1) % TOTAL_SLIDES, 'next');
+
+  useEffect(() => {
+    autoRef.current = setInterval(() => {
+      setDirection('next');
+      setIsTransitioning(true);
+      setTimeout(() => {
+        setActiveSlide(prev => (prev + 1) % TOTAL_SLIDES);
+        setIsTransitioning(false);
+      }, 400);
+    }, 7000);
+    return () => clearInterval(autoRef.current);
+  }, []);
+
+  const resetAuto = () => {
+    clearInterval(autoRef.current);
+    autoRef.current = setInterval(() => {
+      setDirection('next');
+      setIsTransitioning(true);
+      setTimeout(() => {
+        setActiveSlide(prev => (prev + 1) % TOTAL_SLIDES);
+        setIsTransitioning(false);
+      }, 400);
+    }, 7000);
+  };
+
+  const handlePrev = () => { prev(); resetAuto(); };
+  const handleNext = () => { next(); resetAuto(); };
+  const handleDot  = (i) => { goTo(i, i > activeSlide ? 'next' : 'prev'); resetAuto(); };
+
+  const slideLabels = ['01 · intro', '02 · reel', '03 · coming_soon'];
+
+  return (
+    <section id="home" className="hero-section">
+      <div className="hero-slideshow">
+
+        {/* SLIDE TRACK */}
+        <div
+          className={`hero-slide-track ${isTransitioning ? `slide-exit-${direction}` : 'slide-enter'}`}
+          aria-live="polite"
+        >
+          {/* ── SLIDE 1: Original hero ── */}
+          {activeSlide === 0 && (
+            <div className="hero-slide slide-main">
+              <div className="hero">
+                <div className="hero-photo-col">
+                  <div className="hero-photo-wrap">
+                    <img
+                      src={zadImg}
+                      alt="Zaldy Dagohoy"
+                      className="hero-photo-img"
+                      onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                    />
+                    <div className="hero-photo-glow"></div>
+                  </div>
+                  <div className="hero-name">
+                    <span className="hero-name-text">Zaldy Arrogante Dagohoy</span>
+                  </div>
+                </div>
+                <div className="hero-content">
+                  <span className="hero-badge">
+                    <IconCode size={13} color="#00ff88"/> product_designer &amp;&amp; frontend_dev
+                  </span>
+                  <h1>Crafting digital <span className="hero-highlight">experiences</span> that matter</h1>
+                  <p className="hero-desc">
+                    I'm Zaldy, a creative developer with a Bachelor's Degree in Technical-Vocational Teacher Education major in Computer Programming.
+                  </p>
+                  <div className="hero-actions">
+                    <button className="btn" onClick={() => scrollToSection('work')}>
+                      ./view_projects <IconArrow size={14} color="currentColor"/>
+                    </button>
+                    <button className="btn btn-outline" onClick={() => scrollToSection('contact-section')}>
+                      ping_me
+                    </button>
+                  </div>
+                  <div className="hero-stack">
+                    <span className="stack-label">stack</span>
+                    {stackIcons.map((s, i) => (
+                      <span key={i} className="stack-icon" title={s.title}>
+                        <HexBg />
+                        <span className="stack-icon-inner">
+                          {s.comp}
+                          <i className={s.icon} style={{ fontSize: '0.65rem', opacity: 0.35, position: 'absolute', bottom: '5px', right: '5px' }}></i>
+                        </span>
+                      </span>
+                    ))}
+                  </div>
+                  <div className="social-links">
+                    {socialItems.map(({ key, href, label, icon }) => (
+                      <a key={key} href={href} aria-label={label} target="_blank" rel="noopener noreferrer">
+                        {icon}
+                      </a>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* ── SLIDE 2: Hero video ── */}
+          {activeSlide === 1 && (
+            <div className="hero-slide slide-video">
+              <div className="hero-video-wrap">
+                <video
+                  key="hero-video"
+                  src={heroVid}
+                  autoPlay
+                  muted
+                  loop
+                  playsInline
+                  className="hero-video"
+                />
+                <div className="hero-video-overlay">
+                  <div className="hero-video-overlay-inner">
+                    <span className="hero-video-kicker">
+                      <span className="rec-dot"></span> showreel_2024.mp4
+                    </span>
+                    <h2 className="hero-video-title">See the work<br/><span className="hero-highlight">in motion</span></h2>
+                    <p className="hero-video-sub">A look inside the process — from wireframes to polished product.</p>
+                    <button className="btn" onClick={() => scrollToSection('work')}>
+                      ./explore_projects <IconArrow size={14} color="currentColor"/>
+                    </button>
+                  </div>
+                </div>
+                {/* scan-line effect on video */}
+                <div className="hero-video-scanlines" aria-hidden="true"></div>
+                {/* corner brackets */}
+                <span className="vid-corner vid-tl" aria-hidden="true"></span>
+                <span className="vid-corner vid-tr" aria-hidden="true"></span>
+                <span className="vid-corner vid-bl" aria-hidden="true"></span>
+                <span className="vid-corner vid-br" aria-hidden="true"></span>
+              </div>
+            </div>
+          )}
+
+          {/* ── SLIDE 3: Coming soon placeholder ── */}
+          {activeSlide === 2 && (
+            <div className="hero-slide slide-coming-soon">
+              <div className="coming-soon-inner">
+                <div className="coming-soon-grid-bg" aria-hidden="true"></div>
+                <div className="coming-soon-orbs" aria-hidden="true">
+                  <span className="cs-orb cs-orb-1"></span>
+                  <span className="cs-orb cs-orb-2"></span>
+                </div>
+                <div className="coming-soon-content">
+                  <span className="coming-soon-kicker">
+                    <span className="blink-cursor">▋</span> slide_03.jsx
+                  </span>
+                  <h2 className="coming-soon-title">
+                    <span className="cs-line cs-line-1">something</span>
+                    <span className="cs-line cs-line-2 hero-highlight">new</span>
+                    <span className="cs-line cs-line-3">is loading...</span>
+                  </h2>
+                  <p className="coming-soon-sub">
+                    This slide is reserved for something exciting. Check back soon.
+                  </p>
+                  <div className="coming-soon-progress">
+                    <div className="cs-progress-label">
+                      <span>// building</span>
+                      <span className="cs-pct">--_%</span>
+                    </div>
+                    <div className="cs-progress-bar">
+                      <div className="cs-progress-fill"></div>
+                    </div>
+                  </div>
+                  <div className="coming-soon-tags">
+                    {['???', 'tba', 'soon™'].map(t => (
+                      <span key={t} className="tech-tag cs-tag">{t}</span>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* ── NAV ARROWS ── */}
+        <button className="hero-arrow hero-arrow-prev" onClick={handlePrev} aria-label="Previous slide">
+          <IconChevronLeft size={22} color="#00ff88"/>
+        </button>
+        <button className="hero-arrow hero-arrow-next" onClick={handleNext} aria-label="Next slide">
+          <IconChevronRight size={22} color="#00ff88"/>
+        </button>
+
+        {/* ── DOTS / SLIDE LABELS ── */}
+        <div className="hero-slide-nav">
+          {slideLabels.map((label, i) => (
+            <button
+              key={i}
+              className={`hero-slide-dot${activeSlide === i ? ' active' : ''}`}
+              onClick={() => handleDot(i)}
+              aria-label={`Slide ${i + 1}: ${label}`}
+            >
+              <span className="slide-dot-line"></span>
+              <span className="slide-dot-label">{label}</span>
+            </button>
+          ))}
+        </div>
+
+        {/* ── SLIDE COUNTER ── */}
+        <div className="hero-slide-counter" aria-hidden="true">
+          <span className="slide-current">0{activeSlide + 1}</span>
+          <span className="slide-sep">/</span>
+          <span className="slide-total">0{TOTAL_SLIDES}</span>
+        </div>
+
+      </div>
+    </section>
+  );
+};
+
 const HomePage = () => {
   const [formData, setFormData] = useState({ name: '', email: '', message: '' });
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -845,69 +1096,8 @@ const HomePage = () => {
           )}
         </nav>
 
-        {/* HERO */}
-        <section id="home" className="hero-section">
-          <div className="hero">
-
-            {/* LEFT: photo column — name tag lives here, bottom-left */}
-            <div className="hero-photo-col">
-              <div className="hero-photo-wrap">
-                <img
-                  src={zadImg}
-                  alt="Zaldy Dagohoy"
-                  className="hero-photo-img"
-                  onError={(e) => { e.currentTarget.style.display = 'none'; }}
-                />
-                <div className="hero-photo-glow"></div>
-              </div>
-              {/* NAME TAG — pinned bottom-left of the photo column */}
-              <div className="hero-name">
-                <span className="hero-name-text">Zaldy Arrogante Dagohoy</span>
-              </div>
-            </div>
-
-            {/* RIGHT: content column — center aligned */}
-            <div className="hero-content">
-              <span className="hero-badge">
-                <IconCode size={13} color="#00ff88"/> product_designer &amp;&amp; frontend_dev
-              </span>
-              <h1>Crafting digital <span className="hero-highlight">experiences</span> that matter</h1>
-              <p className="hero-desc">
-                I'm Zaldy, a creative developer with a Bachelor's Degree in Technical-Vocational Teacher Education major in Computer Programming.
-              </p>
-              <div className="hero-actions">
-                <button className="btn" onClick={() => scrollToSection('work')}>
-                  ./view_projects <IconArrow size={14} color="currentColor"/>
-                </button>
-                <button className="btn btn-outline" onClick={() => scrollToSection('contact-section')}>
-                  ping_me
-                </button>
-              </div>
-
-              <div className="hero-stack">
-                <span className="stack-label">stack</span>
-                {stackIcons.map((s, i) => (
-                  <span key={i} className="stack-icon" title={s.title}>
-                    <HexBg />
-                    <span className="stack-icon-inner">
-                      {s.comp}
-                      <i className={s.icon} style={{ fontSize: '0.65rem', opacity: 0.35, position: 'absolute', bottom: '5px', right: '5px' }}></i>
-                    </span>
-                  </span>
-                ))}
-              </div>
-
-              <div className="social-links">
-                {socialItems.map(({ key, href, label, icon }) => (
-                  <a key={key} href={href} aria-label={label} target="_blank" rel="noopener noreferrer">
-                    {icon}
-                  </a>
-                ))}
-              </div>
-            </div>
-
-          </div>
-        </section>
+        {/* HERO SLIDESHOW */}
+        <HeroSlideshow scrollToSection={scrollToSection} socialItems={socialItems} stackIcons={stackIcons} />
 
         {/* STATS BAR */}
         <div className="stats-bar" ref={statsRef}>
