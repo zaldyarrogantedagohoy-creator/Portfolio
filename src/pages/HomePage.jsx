@@ -1,3 +1,4 @@
+
 import { useEffect, useState, useRef } from 'react';
 import { supabase } from '../supabaseClient';
 import '../styles/HomePage.css';
@@ -11,11 +12,6 @@ import cert4Img from '../assets/images/certificate-4.png';
 import cert5Img from '../assets/images/certificate-5.png';
 import cert6Img from '../assets/images/certificate-6.png';
 
-/* ─────────────────────────────────────────
-   SOCIAL LINKS CONFIGURATION
-   Replace the placeholder URLs with your actual profile links.
-   Set any link to '' (empty string) to hide that icon.
-───────────────────────────────────────── */
 const SOCIAL_LINKS = {
   github:   'https://github.com/zaldyarrogantedagohoy-creator',
   linkedin: 'https://www.linkedin.com/in/zaldy-dagohoy-73a5a5415/?skipRedirect=true',
@@ -46,9 +42,6 @@ const researchAssets   = buildAssets(import.meta.glob('../assets/Research/*.{png
 const developmentAssets= buildAssets(import.meta.glob('../assets/Development/*.{png,jpg,jpeg,pdf}',  { eager: true, query: '?url', import: 'default' }));
 const folderAssets = { design: designAssets, research: researchAssets, development: developmentAssets };
 
-/* ─────────────────────────────────────────
-   2D SVG Icon Library
-───────────────────────────────────────── */
 const IconReact = ({ size = 20, color = '#00ff88' }) => (
   <svg width={size} height={size} viewBox="0 0 24 24" fill="none" aria-hidden="true">
     <ellipse cx="12" cy="12" rx="2.5" ry="2.5" fill={color} opacity="0.9"/>
@@ -286,9 +279,6 @@ const IconHeart = ({ size = 13, color = 'currentColor' }) => (
   </svg>
 );
 
-/* ─────────────────────────────────────────
-   Hex SVG Background for Stack Icons
-───────────────────────────────────────── */
 const HexBg = ({ color = 'rgba(0,255,136,0.35)' }) => (
   <svg style={{ position: 'absolute', inset: 0, width: '100%', height: '100%' }} viewBox="0 0 46 46" aria-hidden="true">
     <polygon style={{ fill: 'rgba(0,255,136,0.08)', transition: 'fill-opacity 0.2s' }} points="23,3 40,13 40,33 23,43 6,33 6,13" className="hex-fill"/>
@@ -297,9 +287,6 @@ const HexBg = ({ color = 'rgba(0,255,136,0.35)' }) => (
   </svg>
 );
 
-/* ─────────────────────────────────────────
-   Animated Folder Component
-───────────────────────────────────────── */
 const FolderIcon = ({ color = '#00ff88', innerIcon, isOpen, onClick }) => (
   <div
     className={`folder-3d${isOpen ? ' folder-open' : ''}`}
@@ -326,9 +313,6 @@ const FolderIcon = ({ color = '#00ff88', innerIcon, isOpen, onClick }) => (
   </div>
 );
 
-/* ─────────────────────────────────────────
-   3D Cube Expertise Component
-───────────────────────────────────────── */
 const SkillCube = ({ skills }) => {
   const [rotX, setRotX] = useState(-20);
   const [rotY, setRotY] = useState(30);
@@ -463,9 +447,6 @@ const SkillCube = ({ skills }) => {
   );
 };
 
-/* ─────────────────────────────────────────
-   3D Stage Icon SVGs
-───────────────────────────────────────── */
 const BulbIcon = () => (
   <svg width="62" height="72" viewBox="0 0 62 72" fill="none" xmlns="http://www.w3.org/2000/svg">
     <ellipse cx="31" cy="27" rx="18" ry="18" fill="#1a1200" stroke="#ffb700" strokeWidth="1.2" opacity="0.9"/>
@@ -555,9 +536,6 @@ const RocketIcon = () => (
   </svg>
 );
 
-/* ─────────────────────────────────────────
-   Animated Process Step
-───────────────────────────────────────── */
 const ProcessStep = ({ step, label, desc, index, iconComponent }) => {
   const ref = useRef(null);
   const [visible, setVisible] = useState(false);
@@ -582,9 +560,6 @@ const ProcessStep = ({ step, label, desc, index, iconComponent }) => {
   );
 };
 
-/* ─────────────────────────────────────────
-   VIEW-ONLY FILE VIEWER COMPONENT
-───────────────────────────────────────── */
 const FileViewer = ({ file, onClose }) => {
   useEffect(() => {
     const blockSave = (e) => {
@@ -645,9 +620,6 @@ const FileViewer = ({ file, onClose }) => {
   );
 };
 
-/* ─────────────────────────────────────────
-   MAIN HOMEPAGE
-───────────────────────────────────────── */
 const HomePage = () => {
   const [formData, setFormData] = useState({ name: '', email: '', message: '' });
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -743,19 +715,15 @@ const HomePage = () => {
       setFormStatus({ type: 'error', message: 'ERROR: Please fill in name and comment.' });
       return;
     }
-
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (formData.email && !emailRegex.test(formData.email)) {
       setFormStatus({ type: 'error', message: 'ERROR: Invalid email address.' });
       return;
     }
-
     setIsSubmitting(true);
     setFormStatus({ type: '', message: 'Submitting to Supabase...' });
-
     try {
       if (!supabase) {
-        // Supabase not configured — fallback to local success so UI remains usable during development.
         console.warn('Supabase not configured; falling back to local submit.');
         await new Promise((res) => setTimeout(res, 700));
         setFormStatus({ type: 'success', message: 'SUCCESS: Message submitted (local fallback).' });
@@ -767,9 +735,7 @@ const HomePage = () => {
           message: formData.message,
           status: 'pending',
         }]);
-
         if (error) throw error;
-
         setFormStatus({ type: 'success', message: 'SUCCESS: Message saved to Supabase.' });
         setFormData({ name: '', email: '', message: '' });
       }
@@ -825,21 +791,16 @@ const HomePage = () => {
     { icon: 'fab fa-git-alt',   comp: <IconGit size={18} color="#00ff88"/>,   title: 'Git'        },
   ];
 
-  /* ─────────────────────────────────────────
-     Social link items — driven by SOCIAL_LINKS config at top of file.
-     Icons with an empty href are hidden automatically.
-  ───────────────────────────────────────── */
   const socialItems = [
     { key: 'github',   href: SOCIAL_LINKS.github,   label: 'GitHub',   icon: <IconGithub size={17}/>   },
     { key: 'linkedin', href: SOCIAL_LINKS.linkedin,  label: 'LinkedIn', icon: <IconLinkedin size={17}/> },
     { key: 'twitter',  href: SOCIAL_LINKS.twitter,   label: 'Twitter',  icon: <IconTwitter size={17}/>  },
     { key: 'dribbble', href: SOCIAL_LINKS.dribbble,  label: 'Dribbble', icon: <IconDribbble size={17}/> },
-  ].filter(item => item.href); // hides any entry whose URL is empty
+  ].filter(item => item.href);
 
   return (
     <div className="homepage">
 
-      {/* AMBIENT BACKGROUND */}
       <div className="ambient-bg" aria-hidden="true">
         <span className="orb orb-1"></span><span className="orb orb-2"></span>
         <span className="orb orb-3"></span><span className="orb orb-4"></span>
@@ -848,7 +809,6 @@ const HomePage = () => {
 
       <div className="container">
 
-        {/* NAVIGATION */}
         <nav className="navbar">
           <div className="logo">
             <img src={logoImg} alt="Site logo" className="site-logo" />
@@ -888,6 +848,8 @@ const HomePage = () => {
         {/* HERO */}
         <section id="home" className="hero-section">
           <div className="hero">
+
+            {/* LEFT: photo column — name tag lives here, bottom-left */}
             <div className="hero-photo-col">
               <div className="hero-photo-wrap">
                 <img
@@ -898,8 +860,13 @@ const HomePage = () => {
                 />
                 <div className="hero-photo-glow"></div>
               </div>
+              {/* NAME TAG — pinned bottom-left of the photo column */}
+              <div className="hero-name">
+                <span className="hero-name-text">Zaldy Arrogante Dagohoy</span>
+              </div>
             </div>
 
+            {/* RIGHT: content column — center aligned */}
             <div className="hero-content">
               <span className="hero-badge">
                 <IconCode size={13} color="#00ff88"/> product_designer &amp;&amp; frontend_dev
@@ -930,23 +897,15 @@ const HomePage = () => {
                 ))}
               </div>
 
-              {/* ── HERO SOCIAL LINKS ── */}
               <div className="social-links">
                 {socialItems.map(({ key, href, label, icon }) => (
-                  <a
-                    key={key}
-                    href={href}
-                    aria-label={label}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
+                  <a key={key} href={href} aria-label={label} target="_blank" rel="noopener noreferrer">
                     {icon}
                   </a>
                 ))}
               </div>
             </div>
 
-            <div className="hero-name"><span className="hero-name-text">Zaldy Arrogante Dagohoy</span></div>
           </div>
         </section>
 
@@ -1050,7 +1009,6 @@ const HomePage = () => {
           </div>
         </section>
 
-        {/* CERTIFICATE VIEWER */}
         {selectedCertificate && (
           <div className="certificate-viewer" role="dialog" aria-modal="true">
             <div className="certificate-viewer-backdrop" onClick={closeCertificate} />
@@ -1062,7 +1020,6 @@ const HomePage = () => {
           </div>
         )}
 
-        {/* VIEW-ONLY FILE VIEWER */}
         {viewerOpen && viewerFile && (
           <FileViewer file={viewerFile} onClose={closeFileViewer} />
         )}
@@ -1108,7 +1065,6 @@ const HomePage = () => {
           </div>
         </section>
 
-        {/* PROJECT MODAL */}
         {showProjectModal && selectedCategory && (
           <div className="project-modal-overlay" onClick={closeProjectModal}>
             <div className="project-modal" onClick={(e) => e.stopPropagation()}>
@@ -1153,7 +1109,7 @@ const HomePage = () => {
           </div>
         )}
 
-        {/* SKILLS — 3D Cube */}
+        {/* SKILLS */}
         <section className="skills-section" id="expertise">
           <div className="skills-header">
             <span className="skills-kicker">skill_stack</span>
@@ -1202,7 +1158,6 @@ const HomePage = () => {
                 <a href="mailto:zaldy.dagohoy.a@gmail.com">zaldy.dagohoy.a@gmail.com</a>
               </div>
               <p className="location"><IconPin size={14} color="#00ff88"/> Davao City, Philippines</p>
-              {/* ── CONTACT SECTION SOCIAL CHIPS ── */}
               <div className="contact-chips">
                 <a href="mailto:zaldy.dagohoy.a@gmail.com" className="contact-chip">
                   <IconEmail size={14} color="#00ff88"/> email
@@ -1269,7 +1224,6 @@ const HomePage = () => {
         </footer>
       </div>
 
-      {/* SCROLL TO TOP */}
       <button className="scroll-top" aria-label="Scroll to top" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
         <IconChevronUp size={16} color="#00ff88"/>
       </button>
@@ -1277,4 +1231,4 @@ const HomePage = () => {
   );
 };
 
-export default HomePage;  
+export default HomePage;

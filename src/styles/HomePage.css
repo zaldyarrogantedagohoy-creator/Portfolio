@@ -289,6 +289,8 @@ section { padding: 5rem 0; }
   display: flex;
   flex-direction: column;
   justify-content: center;
+  align-items: center;
+  text-align: center;
   padding: 3rem 2.5rem 3rem 3rem;
   min-width: 0;
 }
@@ -303,6 +305,8 @@ section { padding: 5rem 0; }
   font-size: 0.75rem; font-weight: 500; color: var(--green);
   background: var(--bg-2); padding: 0.4rem 0.9rem;
   border: 1px solid var(--border); letter-spacing: 0.05em;
+  /* Pin to the LEFT column — stop before the 50% midpoint */
+  max-width: calc(100% - 3rem);
 }
 .hero-name-text {
   display: inline-block; overflow: hidden; white-space: nowrap;
@@ -331,13 +335,13 @@ section { padding: 5rem 0; }
   letter-spacing: -0.03em; margin-bottom: 1.2rem; color: var(--text-bright);
 }
 .hero-highlight { color: var(--green); text-shadow: 0 0 20px rgba(0,255,136,0.4); }
-.hero-desc { font-size: 0.88rem; color: var(--text-dim); max-width: 440px; margin: 0 0 2rem; line-height: 1.8; }
+.hero-desc { font-size: 0.88rem; color: var(--text-dim); max-width: 100%; margin: 0 0 2rem; line-height: 1.8; }
 .hero-desc::before { content: '/* '; color: var(--text-dim); }
 .hero-desc::after  { content: ' */'; color: var(--text-dim); }
-.hero-actions { display: flex; gap: 1rem; flex-wrap: wrap; }
+.hero-actions { display: flex; gap: 1rem; flex-wrap: wrap; justify-content: center; }
 
 /* ── STACK ICONS ── */
-.hero-stack { display: flex; align-items: center; gap: 0.6rem; margin: 1.8rem 0 1.2rem; flex-wrap: wrap; }
+.hero-stack { display: flex; align-items: center; justify-content: center; gap: 0.6rem; margin: 1.8rem 0 1.2rem; flex-wrap: wrap; }
 .stack-label { font-size: 0.68rem; color: var(--text-dim); font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; }
 .stack-label::after { content: ':'; color: var(--green); }
 
@@ -385,7 +389,7 @@ section { padding: 5rem 0; }
 .social-links a:hover { border-color: rgba(0,255,136,0.5); box-shadow: 0 0 16px rgba(0,255,136,0.15), inset 0 0 12px rgba(0,255,136,0.05); }
 .social-links a:hover svg { color: var(--green); transform: scale(1.15); filter: drop-shadow(0 0 6px rgba(0,255,136,0.7)); }
 
-.hero .social-links { margin-top: 0.6rem; transform: translateY(-16px); }
+.hero .social-links { margin-top: 0.6rem; transform: translateY(-16px); justify-content: center; }
 .hero .social-links a { width: 30px; height: 30px; font-size: 0.72rem; }
 .hero .social-links a svg { width: 12px; height: 12px; }
 
