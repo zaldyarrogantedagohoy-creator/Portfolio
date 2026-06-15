@@ -697,9 +697,20 @@ const HeroSlideshow = ({ children, scrollToSection, socialItems, stackIcons }) =
     }, 7000);
   };
 
+  const videoRef = useRef(null);
+
   const handlePrev = () => { prev(); resetAuto(); };
   const handleNext = () => { next(); resetAuto(); };
   const handleDot  = (i) => { goTo(i, i > activeSlide ? 'next' : 'prev'); resetAuto(); };
+
+  useEffect(() => {
+    if (activeSlide === 1 && videoRef.current) {
+      const video = videoRef.current;
+      video.play().catch(() => {
+        // autoplay may fail on some browsers; muted is required for autoplay
+      });
+    }
+  }, [activeSlide]);
 
   const slideLabels = ['01 · intro', '02 · reel', '03 · coming_soon'];
 
@@ -775,12 +786,14 @@ const HeroSlideshow = ({ children, scrollToSection, socialItems, stackIcons }) =
             <div className="hero-slide slide-video">
               <div className="hero-video-wrap">
                 <video
+                  ref={videoRef}
                   key="hero-video"
                   src={heroVid}
                   autoPlay
                   muted
                   loop
                   playsInline
+                  preload="auto"
                   className="hero-video"
                 />
                 <div className="hero-video-overlay">
