@@ -616,23 +616,34 @@ const FileViewer = ({ file, onClose }) => {
         </div>
         {file.type === 'image' && (
           <div className="file-viewer-image-wrap" onContextMenu={(e) => e.preventDefault()}>
-            <div
+            <img
               className="file-viewer-image"
-              style={{ backgroundImage: `url(${file.src})` }}
-              role="img"
-              aria-label={file.name}
+              src={file.src}
+              alt={file.name || 'Image sample'}
               onDragStart={(e) => e.preventDefault()}
               onContextMenu={(e) => e.preventDefault()}
             />
           </div>
         )}
         {file.type === 'pdf' && (
-          <iframe
-            title={file.name || 'Document'}
-            src={`${file.src}#toolbar=0&navpanes=0&scrollbar=1&view=FitH`}
-            sandbox="allow-same-origin allow-scripts"
-            onContextMenu={(e) => e.preventDefault()}
-          />
+          <div className="file-viewer-pdf-wrap">
+            <object
+              data={`${file.src}#toolbar=0&navpanes=0&scrollbar=1&view=FitH`}
+              type="application/pdf"
+              width="100%"
+              height="100%"
+            >
+              <iframe
+                title={file.name || 'Document'}
+                src={`${file.src}#toolbar=0&navpanes=0&scrollbar=1&view=FitH`}
+                sandbox="allow-same-origin allow-scripts"
+                onContextMenu={(e) => e.preventDefault()}
+              />
+              <div className="file-viewer-pdf-fallback">
+                <p>Unable to preview this PDF directly. <a href={file.src} target="_blank" rel="noopener noreferrer">Open it in a new tab</a>.</p>
+              </div>
+            </object>
+          </div>
         )}
       </div>
     </div>
@@ -1285,7 +1296,11 @@ const HomePage = () => {
                     </p>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
                       <span className="sample-tech">
-                        {project.type === 'image' ? 'Image sample' : 'Document sample'}
+                        {project.type === 'image'
+                          ? 'Image sample'
+                          : project.type === 'pdf'
+                            ? 'PDF sample'
+                            : 'Document sample'}
                       </span>
                       <span className="sample-view-only">
                         <IconLock size={11} color="currentColor"/> view only

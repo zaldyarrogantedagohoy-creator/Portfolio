@@ -439,9 +439,6 @@ section { padding: 5rem 0; }
 }
 
 /* ── SLIDE 1: inherits existing .hero styles unchanged ── */
-.slide-main .hero {
-  /* already defined — no changes needed */
-}
 
 /* ══════════════════════════════════════════════════════════
    SLIDE 2: VIDEO REEL
@@ -1053,8 +1050,9 @@ section { padding: 5rem 0; }
 
 .file-viewer-content {
   position: relative; z-index: 1201;
-  width: min(1100px, 92vw);
-  max-height: 92vh;
+  width: min(1200px, 98vw);
+  height: min(98vh, calc(100vh - 16px));
+  max-height: 98vh;
   background: var(--bg-2);
   border: 1px solid var(--border-hi);
   box-shadow: 0 0 0 1px rgba(0,255,136,0.06),
@@ -1127,34 +1125,58 @@ section { padding: 5rem 0; }
 /* ── image area — CSS background so browser has no <img> to save ── */
 .file-viewer-image {
   flex: 1;
-  min-height: 200px;
+  min-height: 0;
   width: 100%;
-  background-size: contain;
-  background-repeat: no-repeat;
-  background-position: center;
+  max-height: 100%;
+  object-fit: contain;
+  object-position: center;
   background-color: var(--bg);
-  /* Block every native interaction that could lead to a save */
+  display: block;
   user-select: none;
   -webkit-user-select: none;
   -moz-user-select: none;
   -webkit-touch-callout: none;   /* iOS long-press menu */
-  pointer-events: none;          /* blocks right-click reaching the element */
 }
 
 /* Re-enable pointer events on the wrapper so scrolling still works */
 .file-viewer-image-wrap {
   flex: 1; min-height: 0;
-  overflow: auto;
+  overflow: hidden;
   pointer-events: auto;
   position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
 }
 
-.file-viewer iframe {
+.file-viewer iframe,
+.file-viewer-pdf-wrap object {
   flex: 1; min-height: 0;
   width: 100%;
-  height: calc(92vh - 100px);
+  height: 100%;
   border: none;
   display: block;
+}
+
+.file-viewer-pdf-wrap {
+  flex: 1; min-height: 0;
+  width: 100%;
+  overflow: hidden;
+  background: var(--bg);
+  display: flex;
+}
+
+.file-viewer-pdf-fallback {
+  padding: 1.5rem;
+  text-align: center;
+  color: var(--text-dim);
+  font-size: 0.9rem;
+}
+
+.file-viewer-pdf-fallback a {
+  color: var(--green);
+  text-decoration: underline;
 }
 
 /* Blanket no-select / no-drag on everything inside the pane */
