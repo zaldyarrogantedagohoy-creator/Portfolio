@@ -25,15 +25,29 @@ const assetType = (path) => {
   if (['png','jpg','jpeg'].includes(ext)) return 'image';
   return 'file';
 };
+// Add a description for each project here, keyed by its filename (without extension).
+// The key must match the file name exactly (case-insensitive).
+const PROJECT_DESCRIPTIONS = {
+  '_braille connect_ a mobile application for visually impaired students': 'A thesis project designing an accessible mobile app that pairs braille input with audio feedback to help visually impaired students navigate learning materials independently.',
+  // 'another-file-name': 'Its description...',
+};
+
+const getProjectDescription = (name) =>
+  PROJECT_DESCRIPTIONS[name.trim().toLowerCase()] || 'No description added yet — add one to PROJECT_DESCRIPTIONS in HomePage.jsx.';
+
 const buildAssets = (entries) =>
   Object.entries(entries)
     .filter(([path]) => /\.(png|jpe?g|pdf)$/i.test(path))
-    .map(([path, src]) => ({
-      src,
-      name: assetFilename(path),
-      type: assetType(path),
-      ext: path.split('.').pop().toUpperCase(),
-    }))
+    .map(([path, src]) => {
+      const name = assetFilename(path);
+      return {
+        src,
+        name,
+        type: assetType(path),
+        ext: path.split('.').pop().toUpperCase(),
+        description: getProjectDescription(name),
+      };
+    })
     .sort((a, b) => a.name.localeCompare(b.name, undefined, { numeric: true, sensitivity: 'base' }));
 
 const designAssets     = buildAssets(import.meta.glob('../assets/Design/*.{png,jpg,jpeg,pdf}',       { eager: true, query: '?url', import: 'default' }));
@@ -551,37 +565,51 @@ const FileViewer = ({ file, onClose }) => {
           <IconEye size={11} color="currentColor" />
           view only — downloading disabled
         </div>
-        {file.type === 'image' && (
-          <div className="file-viewer-image-wrap" onContextMenu={(e) => e.preventDefault()}>
-            <img
-              className="file-viewer-image"
-              src={file.src}
-              alt={file.name || 'Image sample'}
-              onDragStart={(e) => e.preventDefault()}
-              onContextMenu={(e) => e.preventDefault()}
-            />
-          </div>
-        )}
-        {file.type === 'pdf' && (
-          <div className="file-viewer-pdf-wrap">
-            <object
-              data={`${file.src}#toolbar=0&navpanes=0&scrollbar=1&view=FitH`}
-              type="application/pdf"
-              width="100%"
-              height="100%"
-            >
-              <iframe
-                title={file.name || 'Document'}
-                src={`${file.src}#toolbar=0&navpanes=0&scrollbar=1&view=FitH`}
-                sandbox="allow-same-origin allow-scripts"
-                onContextMenu={(e) => e.preventDefault()}
-              />
-              <div className="file-viewer-pdf-fallback">
-                <p>Unable to preview this PDF directly. <a href={file.src} target="_blank" rel="noopener noreferrer">Open it in a new tab</a>.</p>
+
+        <div className="file-viewer-body">
+          <div className="file-viewer-preview">
+            {file.type === 'image' && (
+              <div className="file-viewer-image-wrap" onContextMenu={(e) => e.preventDefault()}>
+                <img
+                  className="file-viewer-image"
+                  src={file.src}
+                  alt={file.name || 'Image sample'}
+                  onDragStart={(e) => e.preventDefault()}
+                  onContextMenu={(e) => e.preventDefault()}
+                />
               </div>
-            </object>
+            )}
+            {file.type === 'pdf' && (
+              <div className="file-viewer-pdf-wrap">
+                <object
+                  data={`${file.src}#toolbar=0&navpanes=0&scrollbar=1&view=FitH`}
+                  type="application/pdf"
+                  width="100%"
+                  height="100%"
+                >
+                  <iframe
+                    title={file.name || 'Document'}
+                    src={`${file.src}#toolbar=0&navpanes=0&scrollbar=1&view=FitH`}
+                    sandbox="allow-same-origin allow-scripts"
+                    onContextMenu={(e) => e.preventDefault()}
+                  />
+                  <div className="file-viewer-pdf-fallback">
+                    <p>Unable to preview this PDF directly. <a href={file.src} target="_blank" rel="noopener noreferrer">Open it in a new tab</a>.</p>
+                  </div>
+                </object>
+              </div>
+            )}
           </div>
-        )}
+
+          <div className="file-viewer-description">
+            <span className="fvd-kicker">$ cat description.md</span>
+            <h3 className="fvd-title">{file.name}</h3>
+            <span className="fvd-badge">
+              {file.ext} · {file.type === 'image' ? 'Image sample' : file.type === 'pdf' ? 'PDF sample' : 'Document sample'}
+            </span>
+            <p className="fvd-text">{file.description}</p>
+          </div>
+        </div>
       </div>
     </div>
   );
