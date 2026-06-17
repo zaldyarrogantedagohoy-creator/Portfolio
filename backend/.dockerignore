@@ -1,0 +1,11 @@
+target
+!target/release/my_engine.exe
+.git
+.gitignore
+.env
+.env.local
+.DS_Store
+.vscode
+.idea
+*.swp
+*.swo
