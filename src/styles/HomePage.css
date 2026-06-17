@@ -948,7 +948,7 @@ section { padding: 5rem 0; }
 .cert-subtitle::before { content: '// '; color: var(--text-dim); }
 
 .cert-collage {
-  position: relative; width: 100%; min-height: 680px;
+  position: relative; width: 100%; min-height: 600px;
   background: #07100e; border: 1px solid var(--border); overflow: hidden;
 }
 .cert-collage::before {
@@ -1003,15 +1003,15 @@ section { padding: 5rem 0; }
 .cert-card-num { font-size: 0.65rem; font-weight: 800; color: var(--green); opacity: 0.7; white-space: nowrap; }
 .cert-card-title { font-size: 0.68rem; font-weight: 600; color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
-.cert-card-1 { width: 42%; aspect-ratio: 1.41/1; top: 4%; left: 3%; transform: rotate(-4deg); z-index: 3; }
+.cert-card-1 { width: 34%; aspect-ratio: 1.41/1; top: 4%; left: 3%; transform: rotate(-4deg); z-index: 3; }
 .cert-card-1:hover { transform: rotate(-1deg) scale(1.04) translateY(-8px); }
-.cert-card-2 { width: 38%; aspect-ratio: 1.41/1; top: 2%; right: 2%; transform: rotate(5deg); z-index: 4; }
+.cert-card-2 { width: 31%; aspect-ratio: 1.41/1; top: 2%; right: 2%; transform: rotate(5deg); z-index: 4; }
 .cert-card-2:hover { transform: rotate(2deg) scale(1.04) translateY(-8px); }
-.cert-card-3 { width: 34%; aspect-ratio: 1.41/1; top: 36%; left: 8%; transform: rotate(-7deg); z-index: 2; }
+.cert-card-3 { width: 28%; aspect-ratio: 1.41/1; top: 36%; left: 8%; transform: rotate(-7deg); z-index: 2; }
 .cert-card-3:hover { transform: rotate(-4deg) scale(1.05) translateY(-10px); }
-.cert-card-4 { width: 44%; aspect-ratio: 1.41/1; top: 30%; right: 4%; transform: rotate(3deg); z-index: 5; }
+.cert-card-4 { width: 36%; aspect-ratio: 1.41/1; top: 30%; right: 4%; transform: rotate(3deg); z-index: 5; }
 .cert-card-4:hover { transform: rotate(1deg) scale(1.04) translateY(-8px); }
-.cert-card-5 { width: 36%; aspect-ratio: 1.41/1; bottom: 3%; left: 4%; transform: rotate(6deg); z-index: 6; }
+.cert-card-5 { width: 30%; aspect-ratio: 1.41/1; bottom: 3%; left: 4%; transform: rotate(6deg); z-index: 6; }
 .cert-card-5:hover { transform: rotate(3deg) scale(1.04) translateY(-8px); }
 .cert-card-6 { width: 33%; aspect-ratio: 1.41/1; bottom: 4%; left: 34%; transform: rotate(-3deg); z-index: 7; }
 .cert-card-6:hover { transform: rotate(-1deg) scale(1.05) translateY(-10px); }

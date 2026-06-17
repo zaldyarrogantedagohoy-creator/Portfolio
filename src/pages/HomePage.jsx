@@ -1454,7 +1454,15 @@ const SkillCube = ({ skills }) => {
         )}
 
         {/* SKILLS */}
-        <SkillCube skills={skills} />
+        <section id="expertise" className="skills-section">
+          <div className="skills-header">
+            <span className="skills-kicker"><IconCode size={12} color="#00ff88"/> core_expertise</span>
+            <h2 className="section-title">core_expertise</h2>
+            <p className="skills-subtitle">A snapshot of my key technical skills and areas of specialization.</p>
+          </div>
+          <SkillCube skills={skills} />
+        </section>
+
         {/* TESTIMONIALS */}
         <section className="testimonials-section">
           <span className="skills-kicker"><IconQuote size={12} color="#00ff88"/> testimonials.json</span>
