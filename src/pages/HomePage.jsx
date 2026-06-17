@@ -1010,6 +1010,167 @@ const HomePage = () => {
     { key: 'dribbble', href: SOCIAL_LINKS.dribbble,  label: 'Dribbble', icon: <IconDribbble size={17}/> },
   ].filter(item => item.href);
 
+const SkillCube = ({ skills }) => {
+  const [activeFace, setActiveFace] = useState(0);
+  const levelMap = { Advanced: 92, Strong: 78, Intermediate: 60 };
+  const sliderColors = ['#00ff88', '#00e5ff', '#ffb700', '#00ff88', '#b464ff', '#00e5ff'];
+
+  const faceIcons2D = [
+    <IconReact size={42} color={sliderColors[0]} key="react" />,
+    <IconJS size={42} color={sliderColors[1]} key="js" />,
+    <IconPalette size={42} color={sliderColors[2]} key="palette" />,
+    <IconMobile size={42} color={sliderColors[3]} key="mobile" />,
+    <IconDatabase size={42} color={sliderColors[4]} key="database" />,
+    <IconCode size={42} color={sliderColors[5]} key="code" />,
+  ];
+
+  const activeColor = sliderColors[activeFace];
+
+  // Geometry: must match .slider-icon-scene (180px box) and the 280x280 stage wrapper
+  const HUD_RADIUS = 90;   // radius of the circle the dot orbits on
+  const HUD_CENTER = 140;  // center of the 280x280 stage
+  const HUD_Y_FRACTIONS = [-0.62, -0.12, 0.38, 0.82]; // where each tick sits, top to bottom
+  const HUD_LINE_WIDTHS = [46, 38, 50, 42];
+
+ const hudLabels = [
+    { text: 'category',    sub: skills[activeFace].category },
+    { text: 'skill',       sub: skills[activeFace].label },
+    { text: 'level',       sub: skills[activeFace].level },
+    { text: 'proficiency', sub: `${levelMap[skills[activeFace].level]}%` },
+  ].map((lbl, i) => {
+    const side = i % 2 === 0 ? 'right' : 'left'; // 1st & 3rd → right, 2nd & 4th → left
+    const y = HUD_Y_FRACTIONS[i] * HUD_RADIUS;
+    const xMag = Math.sqrt(Math.max(HUD_RADIUS * HUD_RADIUS - y * y, 0));
+    const x = side === 'right' ? xMag : -xMag;
+    return { ...lbl, side, lineW: HUD_LINE_WIDTHS[i], tickX: HUD_CENTER + x, tickY: HUD_CENTER + y };
+  });
+
+  const cubeRef = useRef(null);
+
+  useEffect(() => {
+    const root = cubeRef.current;
+    if (!root) return;
+    const orbitDot = root.querySelector('.slider-icon-scene .orbit-dot');
+    const labels = Array.from(root.querySelectorAll('.skill-hud-label'));
+    let rafId = null;
+    const threshold = 16;
+    const tickCenters = () => labels.map(lbl => {
+      const tick = lbl.querySelector('.hud-tick');
+      if (!tick) return null;
+      const r = tick.getBoundingClientRect();
+      return { lbl, x: r.left + r.width / 2, y: r.top + r.height / 2 };
+    });
+    const check = () => {
+      if (!orbitDot) { rafId = requestAnimationFrame(check); return; }
+      const od = orbitDot.getBoundingClientRect();
+      const ox = od.left + od.width / 2, oy = od.top + od.height / 2;
+      tickCenters().forEach(c => {
+        if (!c) return;
+        const dx = ox - c.x, dy = oy - c.y;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+        if (dist < threshold) c.lbl.classList.add('active'); else c.lbl.classList.remove('active');
+      });
+      rafId = requestAnimationFrame(check);
+    };
+    rafId = requestAnimationFrame(check);
+    return () => { if (rafId) cancelAnimationFrame(rafId); };
+  }, [activeFace]);
+
+  return (
+    <div className="cube-universe" ref={cubeRef}>
+      <div className="slider-stage">
+        <div className="slider-hint">slide through icons · click any dot to inspect a skill</div>
+
+        <div style={{ position: 'relative', width: '280px', minHeight: '280px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+
+          <div className="hud-scan" aria-hidden="true" style={{ '--skill-color': activeColor }} />
+
+          <div className="skill-hud-labels" aria-hidden="true" key={activeFace} style={{ '--skill-color': activeColor }}>
+            {hudLabels.map((lbl, i) => (
+              <div
+                key={i}
+                className={`skill-hud-label skill-hud-label--${lbl.side}`}
+                style={{ top: `${lbl.tickY}px`, left: `${lbl.tickX}px`, animationDelay: `${i * 0.07}s` }}
+              >
+                {lbl.side === 'right' ? (
+                  <>
+                    <div className="hud-tick" />
+                    <div className="hud-line" style={{ width: `${lbl.lineW}px` }} />
+                    <div className="hud-text">
+                      <span className="hud-text-label">{lbl.text}</span>
+                      <span className="hud-text-value">{lbl.sub}</span>
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <div className="hud-text">
+                      <span className="hud-text-label">{lbl.text}</span>
+                      <span className="hud-text-value">{lbl.sub}</span>
+                    </div>
+                    <div className="hud-line" style={{ width: `${lbl.lineW}px` }} />
+                    <div className="hud-tick" />
+                  </>
+                )}
+              </div>
+            ))}
+          </div>
+
+          <div className="slider-card" style={{ '--skill-color': activeColor, position: 'relative', zIndex: 2 }}>
+            <div className="slider-icon">
+              <div className="icon-scene slider-icon-scene">
+                <div className="orbit-ring"><span className="orbit-dot"></span></div>
+                <div className="ripple"></div>
+                <div className="icon-3d">{faceIcons2D[activeFace]}</div>
+                <div className="floor-glow"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="cube-panel">
+        <div className="cube-panel-header">
+          <span className="cube-panel-kicker">$ skill --inspect</span>
+          <h3 className="cube-panel-title">{skills[activeFace].label}</h3>
+          <span className="cube-panel-cat">{skills[activeFace].category}</span>
+        </div>
+        <p className="cube-panel-desc">{skills[activeFace].description}</p>
+        <div className="cube-chart">
+          {skills.map((sk, i) => {
+            const pct = levelMap[sk.level];
+            const colors = ['#00ff88','#00e5ff','#ffb700','#00ff88','#b464ff','#00e5ff'];
+            const icons2D = [
+              <IconReact size={14} color={colors[0]} key="react" />,
+              <IconJS size={14} color={colors[1]} key="js" />,
+              <IconPalette size={14} color={colors[2]} key="palette" />,
+              <IconMobile size={14} color={colors[3]} key="mobile" />,
+              <IconDatabase size={14} color={colors[4]} key="database" />,
+              <IconCode size={14} color={colors[5]} key="code" />,
+            ];
+            return (
+              <div key={i} className={`chart-row${activeFace === i ? ' chart-row-active' : ''}`} onClick={() => setActiveFace(i)}>
+                <span className="chart-label">
+                  <span className="chart-icon-2d">{icons2D[i]}</span>
+                  {sk.label}
+                </span>
+                <div className="chart-bar-track">
+                  <div className="chart-bar-fill" style={{ '--pct': `${pct}%`, '--clr': colors[i] }}></div>
+                </div>
+                <span className="chart-pct" style={{ color: colors[i] }}>{pct}%</span>
+              </div>
+            );
+          })}
+        </div>
+        <div className="cube-nav">
+          {skills.map((_, i) => (
+            <button key={i} className={`cube-dot${activeFace === i ? ' active' : ''}`} onClick={() => setActiveFace(i)} aria-label={`Skill ${i + 1}`}></button>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+};
+
   return (
     <div className="homepage">
 
@@ -1265,15 +1426,7 @@ const HomePage = () => {
         )}
 
         {/* SKILLS */}
-        <section className="skills-section" id="expertise">
-          <div className="skills-header">
-            <span className="skills-kicker">skill_stack</span>
-            <h2 className="section-title">core_expertise</h2>
-            <p>Slide through icons · click any dot or chart row to inspect a skill.</p>
-          </div>
-          <SkillCube skills={skills} />
-        </section>
-
+        <SkillCube skills={skills} />
         {/* TESTIMONIALS */}
         <section className="testimonials-section">
           <span className="skills-kicker"><IconQuote size={12} color="#00ff88"/> testimonials.json</span>

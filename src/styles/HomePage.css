@@ -1873,3 +1873,160 @@ footer { border-top: 1px solid var(--border); padding-top: 2rem; }
     gap: 1.2rem 0.5rem;
   }
 }
+
+/* ── SKILL ARROW LABELS (futuristic HUD callouts) ── */
+.skill-hud-labels {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 4;
+}
+
+.skill-hud-label {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  gap: 0;
+  opacity: 0;
+  animation-duration: 0.4s;
+  animation-timing-function: ease;
+  animation-fill-mode: forwards;
+}
+.skill-hud-label--right {
+  transform: translate(-3px, -50%);
+  animation-name: hudLabelInRight;
+}
+.skill-hud-label--left {
+  transform: translate(calc(-100% + 3px), -50%);
+  animation-name: hudLabelInLeft;
+}
+.skill-hud-label--left .hud-text { align-items: flex-end; text-align: right; }
+.skill-hud-label--left .hud-text {
+  clip-path: polygon(0% 0%, calc(100% - 6px) 0%, 100% 100%, 6px 100%);
+}
+
+@keyframes hudLabelInRight {
+  from { opacity: 0; transform: translate(5px, -50%); }
+  to   { opacity: 1; transform: translate(-3px, -50%); }
+}
+@keyframes hudLabelInLeft {
+  from { opacity: 0; transform: translate(calc(-100% - 5px), -50%); }
+  to   { opacity: 1; transform: translate(calc(-100% + 3px), -50%); }
+}
+
+/* Line — arrow always points toward the tick/circle */
+.hud-line {
+  height: 1px;
+  flex-shrink: 0;
+  position: relative;
+  opacity: 0.7;
+  transition: opacity 0.2s, height 0.2s, background 0.2s;
+}
+.skill-hud-label--right .hud-line {
+  background: linear-gradient(90deg, var(--skill-color, var(--green-dim)), transparent);
+}
+.skill-hud-label--right .hud-line::before {
+  content: '';
+  position: absolute; left: 0; top: 50%; transform: translateY(-50%);
+  width: 0; height: 0;
+  border-top: 3px solid transparent;
+  border-bottom: 3px solid transparent;
+  border-right: 6px solid var(--skill-color, var(--green-dim));
+}
+.skill-hud-label--left .hud-line {
+  background: linear-gradient(270deg, var(--skill-color, var(--green-dim)), transparent);
+}
+.skill-hud-label--left .hud-line::before {
+  content: '';
+  position: absolute; right: 0; top: 50%; transform: translateY(-50%);
+  width: 0; height: 0;
+  border-top: 3px solid transparent;
+  border-bottom: 3px solid transparent;
+  border-left: 6px solid var(--skill-color, var(--green-dim));
+}
+
+.skill-hud-label.active .hud-line { height: 2px; opacity: 1; }
+.skill-hud-label--right.active .hud-line { background: linear-gradient(90deg, var(--skill-color, var(--green)), transparent); }
+.skill-hud-label--left.active .hud-line  { background: linear-gradient(270deg, var(--skill-color, var(--green)), transparent); }
+
+/* Text box */
+.hud-text {
+  display: flex;
+  flex-direction: column;
+  gap: 0.05rem;
+  border: 1px solid color-mix(in srgb, var(--skill-color, var(--green)) 35%, transparent);
+  background: rgba(6,10,14,0.85);
+  padding: 0.25rem 0.6rem;
+  font-family: var(--font-mono);
+  white-space: nowrap;
+  backdrop-filter: blur(4px);
+  clip-path: polygon(6px 0%, 100% 0%, calc(100% - 6px) 100%, 0% 100%);
+  transition: border-color 0.2s, background 0.2s, transform 0.2s;
+}
+.hud-text-label {
+  font-size: 0.58rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+.hud-text-label::before { content: '> '; color: var(--skill-color, var(--green)); font-weight: 700; }
+.hud-text-value {
+  font-size: 0.7rem;
+  font-weight: 800;
+  color: var(--skill-color, var(--green));
+  letter-spacing: 0.02em;
+}
+
+/* Active state — when the orbiting dot touches this tick */
+.skill-hud-label.active .hud-text {
+  transform: scale(1.07);
+  background: color-mix(in srgb, var(--skill-color, var(--green)) 12%, rgba(6,10,14,0.9));
+  border-color: var(--skill-color, var(--green));
+  box-shadow: 0 0 18px color-mix(in srgb, var(--skill-color, var(--green)) 35%, transparent);
+}
+.skill-hud-label.active .hud-text-label { color: var(--text-bright); }
+.skill-hud-label.active .hud-line {
+  height: 2px;
+  opacity: 1;
+  background: linear-gradient(90deg, var(--skill-color, var(--green)), transparent);
+}
+.skill-hud-label.active .hud-tick {
+  background: var(--skill-color, var(--green));
+  border-color: var(--skill-color, var(--green));
+  box-shadow: 0 0 12px var(--skill-color, var(--green));
+}
+
+/* Scan line sweeping the HUD area */
+.hud-scan {
+  position: absolute;
+  left: 0; right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--skill-color, var(--green)) 55%, transparent), transparent);
+  pointer-events: none;
+  animation: hudScan 4s linear infinite;
+  z-index: 5;
+}
+@keyframes hudScan {
+  0%   { top: 0;    opacity: 0; }
+  5%   { opacity: 0.8; }
+  95%  { opacity: 0.8; }
+  100% { top: 100%; opacity: 0; }
+}
+
+/* Left / right specific arrow orientation */
+.skill-hud-label.left .hud-line {
+  background: linear-gradient(270deg, transparent, var(--green-dim));
+}
+.skill-hud-label.left .hud-line::before {
+  left: 0; right: auto; border-left: none; border-right: 6px solid var(--green-dim);
+}
+.skill-hud-label.right .hud-line::before {
+  right: 0; left: auto; border-right: none; border-left: 6px solid var(--green-dim);
+}
+@keyframes hudScan {
+  0%   { top: 0;    opacity: 0; }
+  5%   { opacity: 0.8; }
+  95%  { opacity: 0.8; }
+  100% { top: 100%; opacity: 0; }
+}
