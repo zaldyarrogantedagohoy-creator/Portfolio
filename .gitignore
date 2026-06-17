@@ -30,3 +30,14 @@ dist-ssr
 .env.development.local
 .env.test.local
 .env.production.local
+
+node_modules/
+dist/
+backend/target/
+target/
+.env
+*.pdb
+*.exe
+*.dll
+*.lib
+*.a
