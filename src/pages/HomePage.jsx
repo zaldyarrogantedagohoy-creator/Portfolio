@@ -18,7 +18,6 @@ const SOCIAL_LINKS = {
   twitter:  'https://x.com/zaldydagohoy',
   dribbble: 'https://dribbble.com/zaldy-dagohoy',
 };
-
 const assetFilename = (path) => path.replace(/^.*[\\/]/, '').replace(/\.(png|jpe?g|pdf)$/i, '');
 const assetType = (path) => {
   const ext = path.split('.').pop().toLowerCase();
@@ -333,95 +332,33 @@ const FolderIcon = ({ color = '#00ff88', innerIcon, isOpen, onClick }) => (
 );
 
 const SkillCube = ({ skills }) => {
-  const [rotX, setRotX] = useState(-20);
-  const [rotY, setRotY] = useState(30);
-  const [isDragging, setIsDragging] = useState(false);
-  const [lastMouse, setLastMouse] = useState({ x: 0, y: 0 });
   const [activeFace, setActiveFace] = useState(0);
-  const [autoRotate, setAutoRotate] = useState(true);
-  const animRef = useRef(null);
-  const cubeRef = useRef(null);
-  const rotYRef = useRef(rotY);
-
-  useEffect(() => {
-    if (!autoRotate) return;
-    animRef.current = setInterval(() => {
-      rotYRef.current += 0.4;
-      setRotY(rotYRef.current);
-    }, 16);
-    return () => clearInterval(animRef.current);
-  }, [autoRotate]);
-
-  const onMouseDown = (e) => { setIsDragging(true); setAutoRotate(false); setLastMouse({ x: e.clientX, y: e.clientY }); };
-  const onMouseMove = (e) => {
-    if (!isDragging) return;
-    const dx = e.clientX - lastMouse.x; const dy = e.clientY - lastMouse.y;
-    setRotY(prev => prev + dx * 0.5); rotYRef.current += dx * 0.5;
-    setRotX(prev => Math.max(-45, Math.min(45, prev - dy * 0.5)));
-    setLastMouse({ x: e.clientX, y: e.clientY });
-  };
-  const onMouseUp = () => { setIsDragging(false); setTimeout(() => setAutoRotate(true), 2000); };
-  const onTouchStart = (e) => { setIsDragging(true); setAutoRotate(false); setLastMouse({ x: e.touches[0].clientX, y: e.touches[0].clientY }); };
-  const onTouchMove = (e) => {
-    if (!isDragging) return;
-    const dx = e.touches[0].clientX - lastMouse.x; const dy = e.touches[0].clientY - lastMouse.y;
-    setRotY(prev => prev + dx * 0.6); rotYRef.current += dx * 0.6;
-    setRotX(prev => Math.max(-45, Math.min(45, prev - dy * 0.6)));
-    setLastMouse({ x: e.touches[0].clientX, y: e.touches[0].clientY });
-  };
-  const onTouchEnd = () => { setIsDragging(false); setTimeout(() => setAutoRotate(true), 2000); };
-
-  const faceColors = [
-    { bg: 'rgba(0,255,136,0.08)',   border: 'rgba(0,255,136,0.4)'   },
-    { bg: 'rgba(0,229,255,0.08)',   border: 'rgba(0,229,255,0.4)'   },
-    { bg: 'rgba(255,183,0,0.08)',   border: 'rgba(255,183,0,0.4)'   },
-    { bg: 'rgba(0,255,136,0.08)',   border: 'rgba(0,255,136,0.4)'   },
-    { bg: 'rgba(180,100,255,0.08)', border: 'rgba(180,100,255,0.4)' },
-    { bg: 'rgba(0,229,255,0.08)',   border: 'rgba(0,229,255,0.4)'   },
-  ];
-  const faceTransforms = [
-    'translateZ(120px)', 'rotateY(180deg) translateZ(120px)',
-    'rotateY(90deg) translateZ(120px)', 'rotateY(-90deg) translateZ(120px)',
-    'rotateX(90deg) translateZ(120px)', 'rotateX(-90deg) translateZ(120px)',
-  ];
   const levelMap = { Advanced: 92, Strong: 78, Intermediate: 60 };
+  const sliderColors = ['#00ff88', '#00e5ff', '#ffb700', '#00ff88', '#b464ff', '#00e5ff'];
+
   const faceIcons2D = [
-    <IconReact size={22} color="rgba(0,255,136,0.9)" />,
-    <IconJS size={22} color="rgba(0,229,255,0.9)" />,
-    <IconPalette size={22} color="rgba(255,183,0,0.9)" />,
-    <IconMobile size={22} color="rgba(0,255,136,0.9)" />,
-    <IconDatabase size={22} color="rgba(180,100,255,0.9)" />,
-    <IconCode size={22} color="rgba(0,229,255,0.9)" />,
+    <IconReact size={42} color={sliderColors[0]} key="react" />,
+    <IconJS size={42} color={sliderColors[1]} key="js" />,
+    <IconPalette size={42} color={sliderColors[2]} key="palette" />,
+    <IconMobile size={42} color={sliderColors[3]} key="mobile" />,
+    <IconDatabase size={42} color={sliderColors[4]} key="database" />,
+    <IconCode size={42} color={sliderColors[5]} key="code" />,
   ];
 
   return (
     <div className="cube-universe">
-      <div
-        className={`cube-stage${isDragging ? ' dragging' : ''}`}
-        onMouseDown={onMouseDown} onMouseMove={onMouseMove} onMouseUp={onMouseUp} onMouseLeave={onMouseUp}
-        onTouchStart={onTouchStart} onTouchMove={onTouchMove} onTouchEnd={onTouchEnd}
-        ref={cubeRef}
-      >
-        <div className="cube-hint">drag to rotate · click face to explore</div>
-        <div className="cube-3d" style={{ transform: `rotateX(${rotX}deg) rotateY(${rotY}deg)` }}>
-          {faceColors.map((face, i) => (
-            <div
-              key={i}
-              className={`cube-face${activeFace === i ? ' active-face' : ''}`}
-              style={{ transform: faceTransforms[i], background: face.bg, borderColor: face.border }}
-              onClick={() => setActiveFace(i)}
-            >
-              <div className="face-icon-2d">{faceIcons2D[i]}</div>
-              <i className={skills[i].icon} style={{ fontSize: '0.9rem', opacity: 0.4 }}></i>
-              <span className="face-label">{skills[i].label}</span>
-              <div className="face-bar" style={{ '--face-pct': `${levelMap[skills[i].level]}%`, '--face-color': face.border }}>
-                <div className="face-bar-fill"></div>
-              </div>
-              <span className="face-level">{skills[i].level}</span>
+      <div className="slider-stage">
+        <div className="slider-hint">slide through icons · click any dot to inspect a skill</div>
+        <div className="slider-card" style={{ '--skill-color': sliderColors[activeFace] }}>
+          <div className="slider-icon">
+            <div className="icon-scene slider-icon-scene">
+              <div className="orbit-ring"><span className="orbit-dot"></span></div>
+              <div className="ripple"></div>
+              <div className="icon-3d">{faceIcons2D[activeFace]}</div>
+              <div className="floor-glow"></div>
             </div>
-          ))}
+          </div>
         </div>
-        <div className="cube-floor"></div>
       </div>
       <div className="cube-panel">
         <div className="cube-panel-header">
@@ -435,12 +372,12 @@ const SkillCube = ({ skills }) => {
             const pct = levelMap[sk.level];
             const colors = ['#00ff88','#00e5ff','#ffb700','#00ff88','#b464ff','#00e5ff'];
             const icons2D = [
-              <IconReact size={14} color={colors[0]}/>,
-              <IconJS size={14} color={colors[1]}/>,
-              <IconPalette size={14} color={colors[2]}/>,
-              <IconMobile size={14} color={colors[3]}/>,
-              <IconDatabase size={14} color={colors[4]}/>,
-              <IconCode size={14} color={colors[5]}/>,
+              <IconReact size={14} color={colors[0]} key="react" />,
+              <IconJS size={14} color={colors[1]} key="js" />,
+              <IconPalette size={14} color={colors[2]} key="palette" />,
+              <IconMobile size={14} color={colors[3]} key="mobile" />,
+              <IconDatabase size={14} color={colors[4]} key="database" />,
+              <IconCode size={14} color={colors[5]} key="code" />,
             ];
             return (
               <div key={i} className={`chart-row${activeFace === i ? ' chart-row-active' : ''}`} onClick={() => setActiveFace(i)}>
@@ -457,8 +394,8 @@ const SkillCube = ({ skills }) => {
           })}
         </div>
         <div className="cube-nav">
-          {faceColors.map((_, i) => (
-            <button key={i} className={`cube-dot${activeFace === i ? ' active' : ''}`} onClick={() => setActiveFace(i)} aria-label={`Face ${i + 1}`}></button>
+          {skills.map((_, i) => (
+            <button key={i} className={`cube-dot${activeFace === i ? ' active' : ''}`} onClick={() => setActiveFace(i)} aria-label={`Skill ${i + 1}`}></button>
           ))}
         </div>
       </div>
@@ -1332,7 +1269,7 @@ const HomePage = () => {
           <div className="skills-header">
             <span className="skills-kicker">skill_stack</span>
             <h2 className="section-title">core_expertise</h2>
-            <p>Drag the cube to spin it · click any face or chart row to inspect a skill.</p>
+            <p>Slide through icons · click any dot or chart row to inspect a skill.</p>
           </div>
           <SkillCube skills={skills} />
         </section>
@@ -1341,22 +1278,34 @@ const HomePage = () => {
         <section className="testimonials-section">
           <span className="skills-kicker"><IconQuote size={12} color="#00ff88"/> testimonials.json</span>
           <h2 className="section-title">what_people_say</h2>
-          <div className="testimonials-grid">
-            {[
-              { name: 'Ana Reyes',   role: 'Product Manager, TechStart', text: 'Zaldy delivered a beautiful, well-structured interface under a tight deadline. His attention to detail and communication were exceptional.',          avatar: 'AR' },
-              { name: 'Mark Santos', role: 'CTO, PixelForge',            text: "One of the best frontend experiences I've seen. Clean code, thoughtful design choices, and great responsiveness. Would hire again without hesitation.", avatar: 'MS' },
-              { name: 'Lena Cruz',   role: 'UX Lead, DesignBloom',       text: 'Zaldy has a rare combination of design sensibility and engineering skill. He understands both pixels and people. Truly a full-package collaborator.',   avatar: 'LC' },
-            ].map(({ name, role, text, avatar }) => (
-              <div key={name} className="testimonial-card">
-                <div className="testimonial-quote-icon"><IconQuote size={20} color="#00ff88"/></div>
-                <p className="testimonial-text">{text}</p>
-                <div className="testimonial-author">
-                  <div className="testimonial-avatar">{avatar}</div>
-                  <div><strong>{name}</strong><span>{role}</span></div>
+          <div className="testimonials-scroll-container">
+            <div className="testimonials-track">
+              {[
+                { name: 'Ana Reyes',   role: 'Product Manager, TechStart', text: 'Zaldy delivered a beautiful, well-structured interface under a tight deadline. His attention to detail and communication were exceptional.',          avatar: 'AR' },
+                { name: 'Mark Santos', role: 'CTO, PixelForge',            text: "One of the best frontend experiences I've seen. Clean code, thoughtful design choices, and great responsiveness. Would hire again without hesitation.", avatar: 'MS' },
+                { name: 'Lena Cruz',   role: 'UX Lead, DesignBloom',       text: 'Zaldy has a rare combination of design sensibility and engineering skill. He understands both pixels and people. Truly a full-package collaborator.',   avatar: 'LC' },
+                { name: 'David Chen',  role: 'Founder, WebSync Labs',      text: 'Exceptional problem-solving abilities and a strategic mindset. Zaldy goes beyond just coding—he thinks about the business impact of every feature.',                   avatar: 'DC' },
+                { name: 'Sofia Morales', role: 'Senior Designer, Nexus',   text: 'Working with Zaldy was seamless. He translates design concepts into pixel-perfect implementations while suggesting practical improvements.',                    avatar: 'SM' },
+                { name: 'James Wilson', role: 'VP Engineering, InnovateTech', text: 'Demonstrated leadership in complex projects. Proactive in communication and deeply invested in delivering excellence. A true asset to any team.',         avatar: 'JW' },
+              ].concat([
+                { name: 'Ana Reyes',   role: 'Product Manager, TechStart', text: 'Zaldy delivered a beautiful, well-structured interface under a tight deadline. His attention to detail and communication were exceptional.',          avatar: 'AR' },
+                { name: 'Mark Santos', role: 'CTO, PixelForge',            text: "One of the best frontend experiences I've seen. Clean code, thoughtful design choices, and great responsiveness. Would hire again without hesitation.", avatar: 'MS' },
+                { name: 'Lena Cruz',   role: 'UX Lead, DesignBloom',       text: 'Zaldy has a rare combination of design sensibility and engineering skill. He understands both pixels and people. Truly a full-package collaborator.',   avatar: 'LC' },
+                { name: 'David Chen',  role: 'Founder, WebSync Labs',      text: 'Exceptional problem-solving abilities and a strategic mindset. Zaldy goes beyond just coding—he thinks about the business impact of every feature.',                   avatar: 'DC' },
+                { name: 'Sofia Morales', role: 'Senior Designer, Nexus',   text: 'Working with Zaldy was seamless. He translates design concepts into pixel-perfect implementations while suggesting practical improvements.',                    avatar: 'SM' },
+                { name: 'James Wilson', role: 'VP Engineering, InnovateTech', text: 'Demonstrated leadership in complex projects. Proactive in communication and deeply invested in delivering excellence. A true asset to any team.',         avatar: 'JW' },
+              ]).map(({ name, role, text, avatar }, idx) => (
+                <div key={`${name}-${idx}`} className="testimonial-card">
+                  <div className="testimonial-quote-icon"><IconQuote size={20} color="#00ff88"/></div>
+                  <p className="testimonial-text">{text}</p>
+                  <div className="testimonial-author">
+                    <div className="testimonial-avatar">{avatar}</div>
+                    <div><strong>{name}</strong><span>{role}</span></div>
+                  </div>
+                  <div className="testimonial-stars" aria-label="5 stars">{'★★★★★'.split('').map((s,i) => <span key={i}>{s}</span>)}</div>
                 </div>
-                <div className="testimonial-stars" aria-label="5 stars">{'★★★★★'.split('').map((s,i) => <span key={i}>{s}</span>)}</div>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
         </section>
 
