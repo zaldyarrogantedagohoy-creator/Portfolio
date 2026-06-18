@@ -11,6 +11,7 @@ import cert4Img from '../assets/images/certificate-4.png';
 import cert5Img from '../assets/images/certificate-5.png';
 import cert6Img from '../assets/images/certificate-6.png';
 import heroVid  from '../assets/Videos/Hero_Vid.mp4';
+import pikachuVid from '../assets/Videos/Pikachu.mp4';
 
 const SOCIAL_LINKS = {
   github:   'https://github.com/zaldyarrogantedagohoy-creator',
@@ -71,11 +72,51 @@ const IconJS = ({ size = 20, color = '#00ff88' }) => (
   </svg>
 );
 
+const IconPython = ({ size = 20, color = '#00ff88' }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" aria-hidden="true">
+    <path d="M8 3h7a3 3 0 013 3v4H9a3 3 0 00-3 3v1H3V8a5 5 0 015-5z" stroke={color} strokeWidth="1.2" fill={color} fillOpacity="0.1" strokeLinejoin="round"/>
+    <path d="M16 21H9a3 3 0 01-3-3v-4h9a3 3 0 003-3v-1h3v6a5 5 0 01-5 5z" stroke={color} strokeWidth="1.2" fill={color} fillOpacity="0.14" strokeLinejoin="round"/>
+    <circle cx="9" cy="6.5" r="0.9" fill={color}/>
+    <circle cx="15" cy="17.5" r="0.9" fill={color}/>
+  </svg>
+);
+
 const IconNode = ({ size = 20, color = '#00ff88' }) => (
   <svg width={size} height={size} viewBox="0 0 24 24" fill="none" aria-hidden="true">
     <path d="M12 2L3 7v10l9 5 9-5V7L12 2z" stroke={color} strokeWidth="1" fill={color} fillOpacity="0.1"/>
     <path d="M12 2l9 5-9 5-9-5 9-5z" stroke={color} strokeWidth="1" fill={color} fillOpacity="0.2"/>
     <line x1="12" y1="12" x2="12" y2="22" stroke={color} strokeWidth="1" opacity="0.6"/>
+  </svg>
+);
+
+const IconSupabase = ({ size = 20, color = '#00ff88' }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" aria-hidden="true">
+    <path d="M13.5 2.8L5.2 13.1c-.7.9-.1 2.2 1 2.2h5.4l-1 5.9c-.2 1.1 1.2 1.7 1.9.8l8.3-10.3c.7-.9.1-2.2-1-2.2h-5.4l1-5.9c.2-1.1-1.2-1.7-1.9-.8z" stroke={color} strokeWidth="1.2" fill={color} fillOpacity="0.12" strokeLinejoin="round"/>
+    <path d="M6 15.3h5.6L10.7 21M18 9.5h-5.6l.9-6" stroke={color} strokeWidth="1" strokeLinecap="round" opacity="0.7"/>
+  </svg>
+);
+
+const IconRust = ({ size = 20, color = '#00ff88' }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" aria-hidden="true">
+    <circle cx="12" cy="12" r="6.5" stroke={color} strokeWidth="1.2" fill={color} fillOpacity="0.08"/>
+    <path d="M12 2.8v2.1M12 19.1v2.1M2.8 12h2.1M19.1 12h2.1M5.5 5.5L7 7M17 17l1.5 1.5M18.5 5.5L17 7M7 17l-1.5 1.5" stroke={color} strokeWidth="1.1" strokeLinecap="round"/>
+    <text x="7.1" y="15.5" fontFamily="monospace" fontWeight="800" fontSize="8.5" fill={color}>Rs</text>
+  </svg>
+);
+
+const IconRender = ({ size = 20, color = '#00ff88' }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" aria-hidden="true">
+    <rect x="3" y="4" width="18" height="16" rx="2" stroke={color} strokeWidth="1.2" fill={color} fillOpacity="0.08"/>
+    <path d="M7 8h5.5a3 3 0 010 6H7V8z" stroke={color} strokeWidth="1.2" fill={color} fillOpacity="0.08" strokeLinejoin="round"/>
+    <path d="M12.5 14l4 4M7 18V8" stroke={color} strokeWidth="1.2" strokeLinecap="round"/>
+    <circle cx="16.5" cy="8.5" r="1" fill={color}/>
+  </svg>
+);
+
+const IconVercel = ({ size = 20, color = '#00ff88' }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" aria-hidden="true">
+    <path d="M12 4L22 20H2L12 4z" stroke={color} strokeWidth="1.2" fill={color} fillOpacity="0.14" strokeLinejoin="round"/>
+    <path d="M12 8.4L18 18H6L12 8.4z" stroke={color} strokeWidth="0.9" opacity="0.55" strokeLinejoin="round"/>
   </svg>
 );
 
@@ -708,11 +749,11 @@ const HeroSlideshow = ({ children, scrollToSection, socialItems, stackIcons }) =
                 </div>
                 <div className="hero-content">
                   <span className="hero-badge">
-                    <IconCode size={13} color="#00ff88"/> product_designer &amp;&amp; frontend_dev
+                    <IconCode size={13} color="#00ff88"/> full_stack_developer
                   </span>
-                  <h1>Crafting digital <span className="hero-highlight">experiences</span> that matter</h1>
+                  <h1>Building complete web <span className="hero-highlight">systems</span> that matter</h1>
                   <p className="hero-desc">
-                    I'm Zaldy, a creative developer with a Bachelor's Degree in Technical-Vocational Teacher Education major in Computer Programming.
+                    I'm Zaldy, a full stack developer who designs polished interfaces, builds reliable application logic, and connects products to real data.
                   </p>
                   <div className="hero-actions">
                     <button className="btn" onClick={() => scrollToSection('work')}>
@@ -723,13 +764,12 @@ const HeroSlideshow = ({ children, scrollToSection, socialItems, stackIcons }) =
                     </button>
                   </div>
                   <div className="hero-stack">
-                    <span className="stack-label">stack</span>
+                    <span className="stack-label">workflow</span>
                     {stackIcons.map((s, i) => (
                       <span key={i} className="stack-icon" title={s.title}>
                         <HexBg />
                         <span className="stack-icon-inner">
                           {s.comp}
-                          <i className={s.icon} style={{ fontSize: '0.65rem', opacity: 0.35, position: 'absolute', bottom: '5px', right: '5px' }}></i>
                         </span>
                       </span>
                     ))}
@@ -1009,8 +1049,8 @@ const HomePage = () => {
     {
       category: 'development',
       label:    'Development Projects',
-      desc:     'Scalable web applications and frontend architectures built with performance and clean code in mind.',
-      tags:     ['React', 'Node.js', 'TypeScript'],
+      desc:     'Full stack web applications built across interfaces, APIs, data flows, and deployment-ready architecture.',
+      tags:     ['React', 'Python', 'Supabase'],
       color:    '#00ff88',
       innerIcon: <IconCode size={22} color="#00ff88"/>,
     },
@@ -1024,11 +1064,15 @@ const HomePage = () => {
   ];
 
   const stackIcons = [
-    { icon: 'fab fa-react',     comp: <IconReact size={18} color="#00ff88"/>, title: 'React'      },
-    { icon: 'fab fa-js-square', comp: <IconJS size={18} color="#00ff88"/>,    title: 'JavaScript' },
-    { icon: 'fab fa-node-js',   comp: <IconNode size={18} color="#00ff88"/>,  title: 'Node.js'    },
-    { icon: 'fab fa-figma',     comp: <IconFigma size={18} color="#00ff88"/>, title: 'Figma'      },
-    { icon: 'fab fa-git-alt',   comp: <IconGit size={18} color="#00ff88"/>,   title: 'Git'        },
+    { comp: <IconFigma size={6} color="#00ff88"/>,    title: 'Figma'      },
+    { comp: <IconJS size={6} color="#00ff88"/>,       title: 'JavaScript' },
+    { comp: <IconReact size={6} color="#00ff88"/>,    title: 'React'      },
+    { comp: <IconPython size={6} color="#00ff88"/>,   title: 'Python'     },
+    { comp: <IconSupabase size={6} color="#00ff88"/>, title: 'Supabase'   },
+    { comp: <IconRust size={6} color="#00ff88"/>,     title: 'Rust'       },
+    { comp: <IconGithub size={6} color="#00ff88"/>,   title: 'GitHub'     },
+    { comp: <IconRender size={6} color="#00ff88"/>,   title: 'Render'     },
+    { comp: <IconVercel size={6} color="#00ff88"/>,   title: 'Vercel'     },
   ];
 
   const socialItems = [
@@ -1271,22 +1315,22 @@ const SkillCube = ({ skills }) => {
           <h2 className="section-title">about_me</h2>
           <div className="about-grid">
             <div className="about-text">
-              <p>I'm Zaldy, a creative developer with a technical background in computer programming and a passion for designing intuitive digital products.</p>
-              <p>I blend UX thinking, frontend craftsmanship, and polished visual design to build modern web experiences that feel thoughtful, accessible, and easy to use.</p>
-              <div className="about-pills">
-                {[
-                  { label: 'UI Design',     icon: <IconPalette size={11} color="#00ff88"/> },
-                  { label: 'Prototyping',   icon: <IconCode size={11} color="#00ff88"/> },
-                  { label: 'Frontend Dev',  icon: <IconReact size={11} color="#00ff88"/> },
-                  { label: 'User Research', icon: <IconSearch size={11} color="#00ff88"/> },
-                  { label: 'Accessibility', icon: <IconCheck size={11} color="#00ff88"/> },
-                  { label: 'Performance',   icon: <IconNode size={11} color="#00ff88"/> },
-                ].map(({ label, icon }) => (
-                  <span key={label} className="about-pill">
-                    <span className="pill-dot-svg">{icon}</span>
-                    {label}
-                  </span>
-                ))}
+              <p>I'm Zaldy, a full stack developer with a technical background in computer programming and a passion for building complete, usable web products.</p>
+              <p>I work across interface design, frontend development, backend logic, and data integration to create applications that feel polished, reliable, and easy to use.</p>
+              <div className="about-brief">
+                <div className="about-brief-line">
+                  <span className="about-brief-key">focus</span>
+                  <span>Turning ideas into complete web applications, from UI structure to data-backed functionality.</span>
+                </div>
+                <div className="about-brief-line">
+                  <span className="about-brief-key">method</span>
+                  <span>Plan the flow, design the interface, build the client, connect the backend, test, and ship.</span>
+                </div>
+                <div className="about-metrics" aria-label="About highlights">
+                  <span><strong>07</strong> stack stages</span>
+                  <span><strong>24h</strong> reply window</span>
+                  <span><strong>PH</strong> based</span>
+                </div>
               </div>
             </div>
             <div className="about-card">
@@ -1295,7 +1339,7 @@ const SkillCube = ({ skills }) => {
                 <div className="about-card-avatar-fallback" aria-hidden="true">ZD</div>
               </div>
               <h3>Zaldy Dagohoy</h3>
-              <p className="about-card-role">product_designer · frontend_dev</p>
+              <p className="about-card-role">full_stack_developer</p>
               <div className="about-card-info">
                 <span><IconPin size={13} color="#00ff88"/> Davao City, PH</span>
                 <span><IconGrad size={13} color="#00ff88"/> BTVTED-CP</span>
@@ -1304,6 +1348,48 @@ const SkillCube = ({ skills }) => {
               <a href="mailto:zaldy.dagohoy.a@gmail.com" className="btn about-card-btn">
                 hire_me() <IconSend size={13} color="currentColor"/>
               </a>
+              <div className="about-card-pikachu" aria-hidden="true">
+                <svg className="pikachu-filter-defs" aria-hidden="true" focusable="false">
+                  <filter id="pikachu-neon-outline" colorInterpolationFilters="sRGB">
+                    <feColorMatrix
+                      in="SourceGraphic"
+                      type="matrix"
+                      values="0.2126 0.7152 0.0722 0 0
+                              0.2126 0.7152 0.0722 0 0
+                              0.2126 0.7152 0.0722 0 0
+                              0      0      0      1 0"
+                      result="gray"
+                    />
+                    <feConvolveMatrix
+                      in="gray"
+                      order="3"
+                      kernelMatrix="-1 -1 -1 -1 8 -1 -1 -1 -1"
+                      divisor="1"
+                      bias="0"
+                      edgeMode="duplicate"
+                      preserveAlpha="true"
+                      result="edges"
+                    />
+                    <feColorMatrix
+                      in="edges"
+                      type="matrix"
+                      values="0    0    0    0 0
+                              0.95 0.95 0.95 0 0
+                              0.35 0.35 0.35 0 0
+                              1.2  1.2  1.2  0 -0.18"
+                    />
+                  </filter>
+                </svg>
+                <video
+                  className="pikachu-video"
+                  src={pikachuVid}
+                  autoPlay
+                  muted
+                  loop
+                  playsInline
+                  preload="auto"
+                />
+              </div>
             </div>
           </div>
         </section>
@@ -1455,30 +1541,40 @@ const SkillCube = ({ skills }) => {
 
         {/* SKILLS */}
         <section id="expertise" className="skills-section">
+          <div className="wave-divider" aria-hidden="true">
+            <svg viewBox="0 0 1200 70" preserveAspectRatio="none">
+              <path d="M0,35 C220,23 380,24 600,34 S980,48 1200,35" />
+            </svg>
+          </div>
           <div className="skills-header">
-            <span className="skills-kicker"><IconCode size={12} color="#00ff88"/> core_expertise</span>
+            <span className="skills-kicker expertise-kicker"><IconCode size={12} color="#00ff88"/> core_expertise</span>
             <h2 className="section-title">core_expertise</h2>
-            <p className="skills-subtitle">A snapshot of my key technical skills and areas of specialization.</p>
+            <p className="skills-subtitle">A snapshot of the tools and practices I use to build full stack web applications.</p>
           </div>
           <SkillCube skills={skills} />
         </section>
 
         {/* TESTIMONIALS */}
         <section className="testimonials-section">
+          <div className="wave-divider" aria-hidden="true">
+            <svg viewBox="0 0 1200 70" preserveAspectRatio="none">
+              <path d="M0,35 C220,23 380,24 600,34 S980,48 1200,35" />
+            </svg>
+          </div>
           <span className="skills-kicker"><IconQuote size={12} color="#00ff88"/> testimonials.json</span>
           <h2 className="section-title">what_people_say</h2>
           <div className="testimonials-scroll-container">
             <div className="testimonials-track">
               {[
                 { name: 'Ana Reyes',   role: 'Product Manager, TechStart', text: 'Zaldy delivered a beautiful, well-structured interface under a tight deadline. His attention to detail and communication were exceptional.',          avatar: 'AR' },
-                { name: 'Mark Santos', role: 'CTO, PixelForge',            text: "One of the best frontend experiences I've seen. Clean code, thoughtful design choices, and great responsiveness. Would hire again without hesitation.", avatar: 'MS' },
+                { name: 'Mark Santos', role: 'CTO, PixelForge',            text: "One of the strongest full stack builds I've seen. Clean interfaces, thoughtful architecture, and reliable data handling. Would hire again without hesitation.", avatar: 'MS' },
                 { name: 'Lena Cruz',   role: 'UX Lead, DesignBloom',       text: 'Zaldy has a rare combination of design sensibility and engineering skill. He understands both pixels and people. Truly a full-package collaborator.',   avatar: 'LC' },
                 { name: 'David Chen',  role: 'Founder, WebSync Labs',      text: 'Exceptional problem-solving abilities and a strategic mindset. Zaldy goes beyond just coding—he thinks about the business impact of every feature.',                   avatar: 'DC' },
                 { name: 'Sofia Morales', role: 'Senior Designer, Nexus',   text: 'Working with Zaldy was seamless. He translates design concepts into pixel-perfect implementations while suggesting practical improvements.',                    avatar: 'SM' },
                 { name: 'James Wilson', role: 'VP Engineering, InnovateTech', text: 'Demonstrated leadership in complex projects. Proactive in communication and deeply invested in delivering excellence. A true asset to any team.',         avatar: 'JW' },
               ].concat([
                 { name: 'Ana Reyes',   role: 'Product Manager, TechStart', text: 'Zaldy delivered a beautiful, well-structured interface under a tight deadline. His attention to detail and communication were exceptional.',          avatar: 'AR' },
-                { name: 'Mark Santos', role: 'CTO, PixelForge',            text: "One of the best frontend experiences I've seen. Clean code, thoughtful design choices, and great responsiveness. Would hire again without hesitation.", avatar: 'MS' },
+                { name: 'Mark Santos', role: 'CTO, PixelForge',            text: "One of the strongest full stack builds I've seen. Clean interfaces, thoughtful architecture, and reliable data handling. Would hire again without hesitation.", avatar: 'MS' },
                 { name: 'Lena Cruz',   role: 'UX Lead, DesignBloom',       text: 'Zaldy has a rare combination of design sensibility and engineering skill. He understands both pixels and people. Truly a full-package collaborator.',   avatar: 'LC' },
                 { name: 'David Chen',  role: 'Founder, WebSync Labs',      text: 'Exceptional problem-solving abilities and a strategic mindset. Zaldy goes beyond just coding—he thinks about the business impact of every feature.',                   avatar: 'DC' },
                 { name: 'Sofia Morales', role: 'Senior Designer, Nexus',   text: 'Working with Zaldy was seamless. He translates design concepts into pixel-perfect implementations while suggesting practical improvements.',                    avatar: 'SM' },
@@ -1500,6 +1596,11 @@ const SkillCube = ({ skills }) => {
 
         {/* CONTACT */}
         <section id="contact-section" className="contact-section">
+          <div className="wave-divider" aria-hidden="true">
+            <svg viewBox="0 0 1200 70" preserveAspectRatio="none">
+              <path d="M0,35 C220,23 380,24 600,34 S980,48 1200,35" />
+            </svg>
+          </div>
           <div className="contact-section-header">
             <span className="skills-kicker"><IconSend size={12} color="#00ff88"/> init_contact</span>
             <h2 className="section-title">lets_connect()</h2>
