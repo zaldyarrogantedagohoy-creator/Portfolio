@@ -1098,9 +1098,13 @@ const SkillCube = ({ skills }) => {
 
   const activeColor = sliderColors[activeFace];
 
-  // Geometry: must match .slider-icon-scene (180px box) and the 280x280 stage wrapper
-  const HUD_RADIUS = 90;   // radius of the circle the dot orbits on
-  const HUD_CENTER = 140;  // center of the 280x280 stage
+  // Geometry: keep HUD callout dots attached to the same ring path as the orbiting dot.
+  const HUD_STAGE_SIZE = 280;
+  const ICON_OFFSET_X = 16;
+  const ICON_OFFSET_Y = -18;
+  const HUD_CENTER_X = HUD_STAGE_SIZE / 2 + ICON_OFFSET_X;
+  const HUD_CENTER_Y = HUD_STAGE_SIZE / 2 + ICON_OFFSET_Y;
+  const HUD_RADIUS = 90; // matches .slider-icon-scene .orbit-ring inside the 180px icon scene
   const HUD_Y_FRACTIONS = [-0.62, -0.12, 0.38, 0.82]; // where each tick sits, top to bottom
   const HUD_LINE_WIDTHS = [46, 38, 50, 42];
 
@@ -1114,7 +1118,7 @@ const SkillCube = ({ skills }) => {
     const y = HUD_Y_FRACTIONS[i] * HUD_RADIUS;
     const xMag = Math.sqrt(Math.max(HUD_RADIUS * HUD_RADIUS - y * y, 0));
     const x = side === 'right' ? xMag : -xMag;
-    return { ...lbl, side, lineW: HUD_LINE_WIDTHS[i], tickX: HUD_CENTER + x, tickY: HUD_CENTER + y };
+    return { ...lbl, side, lineW: HUD_LINE_WIDTHS[i], tickX: HUD_CENTER_X + x, tickY: HUD_CENTER_Y + y };
   });
 
   const cubeRef = useRef(null);
@@ -1153,7 +1157,10 @@ const SkillCube = ({ skills }) => {
       <div className="slider-stage">
         <div className="slider-hint">slide through icons · click any dot to inspect a skill</div>
 
-        <div style={{ position: 'relative', width: '280px', minHeight: '280px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <div
+          className="skill-hud-stage"
+          style={{ '--icon-offset-x': `${ICON_OFFSET_X}px`, '--icon-offset-y': `${ICON_OFFSET_Y}px` }}
+        >
 
           <div className="hud-scan" aria-hidden="true" style={{ '--skill-color': activeColor }} />
 
