@@ -2055,6 +2055,59 @@ footer { border-top: 1px solid var(--border); padding-top: 2rem; }
    ═══════════════════════════════════════════════════════════ */
 
 @media (max-width: 780px) {
+  .container {
+    max-width: 100%;
+    padding: 0 1rem;
+  }
+
+  .navbar {
+    margin: 0 -1rem;
+    padding: 0.9rem 1rem;
+    position: sticky;
+  }
+
+  .site-logo {
+    height: 34px;
+  }
+
+  .nav-links,
+  .availability-badge,
+  .nav-right > .btn {
+    display: none;
+  }
+
+  .nav-right {
+    gap: 0;
+  }
+
+  .hamburger {
+    display: inline-flex;
+    width: 42px;
+    height: 42px;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid var(--border);
+    background: rgba(0,255,136,0.04);
+  }
+
+  .mobile-menu {
+    top: calc(100% + 1px);
+    left: 0;
+    right: 0;
+    padding: 0.6rem 1rem 1rem;
+    background:
+      linear-gradient(180deg, rgba(0,255,136,0.05), transparent),
+      rgba(6,10,14,0.98);
+    border-top: 1px solid rgba(0,255,136,0.08);
+    box-shadow: 0 18px 36px rgba(0,0,0,0.45);
+  }
+
+  .mobile-menu a {
+    padding: 0.9rem 0;
+    font-size: 0.82rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
 
   /* ── HERO: stack photo on top, content below ── */
   .hero {
@@ -2159,6 +2212,11 @@ footer { border-top: 1px solid var(--border); padding-top: 2rem; }
     text-align: center;
   }
 
+  .section-title {
+    font-size: 1.55rem;
+    margin-bottom: 2rem;
+  }
+
   .about-grid {
     grid-template-columns: 1fr;
     gap: 1.5rem;
@@ -2173,6 +2231,104 @@ footer { border-top: 1px solid var(--border); padding-top: 2rem; }
     justify-self: center;
   } 
 
+  .projects-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .project-item {
+    padding: 1.45rem;
+  }
+
+  .cert-collage {
+    min-height: auto;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1rem;
+    padding: 1rem;
+  }
+
+  .cert-card {
+    position: relative;
+    inset: auto;
+    width: 100%;
+    height: auto;
+    aspect-ratio: 4 / 3;
+    transform: none !important;
+  }
+
+  .cert-card img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .cert-chip {
+    display: none;
+  }
+
+  .process-strip {
+    padding: 2rem 1.25rem;
+  }
+
+  .process-steps-animated {
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem 1rem;
+  }
+
+  .psa-connector {
+    display: none;
+  }
+
+  .cube-universe {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+    min-height: auto;
+  }
+
+  .slider-stage {
+    min-height: 320px;
+  }
+
+  .cube-panel {
+    width: 100%;
+  }
+
+  .testimonial-card {
+    width: min(82vw, 340px);
+    height: auto;
+    min-height: 340px;
+  }
+
+  .contact-wrapper {
+    display: block;
+    padding: 1.5rem;
+  }
+
+  .contact-info {
+    margin-bottom: 1.75rem;
+  }
+
+  .direct-email {
+    width: 100%;
+    align-items: flex-start;
+  }
+
+  .direct-email a {
+    overflow-wrap: anywhere;
+  }
+
+  .footer-inner,
+  .footer-brand,
+  .footer-nav,
+  .footer-social {
+    justify-content: center;
+    text-align: center;
+  }
+
+  .footer-inner {
+    flex-direction: column;
+  }
+
   .expertise-kicker::after {
     width: min(34vw, 140px);
     height: 24px;
@@ -2183,6 +2339,18 @@ footer { border-top: 1px solid var(--border); padding-top: 2rem; }
 }
 
 @media (max-width: 480px) {
+  .container {
+    padding: 0 0.85rem;
+  }
+
+  .navbar {
+    margin: 0 -0.85rem;
+  }
+
+  section {
+    padding: 3rem 0;
+  }
+
   .hero-photo-col {
     height: 85vw;
   }
@@ -2205,6 +2373,45 @@ footer { border-top: 1px solid var(--border); padding-top: 2rem; }
   .about-metrics span + span {
     border-left: 0;
     border-top: 1px solid rgba(0,255,136,0.1);
+  }
+
+  .about-card {
+    max-width: 100%;
+  }
+
+  .about-card-pikachu {
+    height: 150px;
+  }
+
+  .projects-subtitle,
+  .cert-subtitle,
+  .skills-header p,
+  .contact-info p {
+    font-size: 0.8rem;
+  }
+
+  .project-meta {
+    flex-direction: column;
+    gap: 0.45rem;
+  }
+
+  .process-steps-animated {
+    grid-template-columns: 1fr;
+  }
+
+  .slider-hint {
+    white-space: normal;
+    width: 100%;
+    text-align: center;
+  }
+
+  .contact-wrapper {
+    padding: 1.2rem;
+  }
+
+  .scroll-top {
+    right: 1rem;
+    bottom: 1rem;
   }
 
   .expertise-kicker::after {

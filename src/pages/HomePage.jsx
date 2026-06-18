@@ -1276,12 +1276,19 @@ const SkillCube = ({ skills }) => {
             <button className="btn btn-outline" onClick={() => scrollToSection('contact-section')}>
               contact_me()
             </button>
-            <button className={`hamburger${menuOpen ? ' open' : ''}`} aria-label="Toggle menu" onClick={() => setMenuOpen(v => !v)}>
+            <button
+              type="button"
+              className={`hamburger${menuOpen ? ' open' : ''}`}
+              aria-label="Toggle menu"
+              aria-controls="mobile-navigation"
+              aria-expanded={menuOpen}
+              onClick={() => setMenuOpen(v => !v)}
+            >
               <span></span><span></span><span></span>
             </button>
           </div>
           {menuOpen && (
-            <div className="mobile-menu">
+            <div className="mobile-menu" id="mobile-navigation">
               {['home','work','certificates','about'].map(id => (
                 <a key={id} href={`#${id}`} onClick={(e) => { e.preventDefault(); scrollToSection(id); setMenuOpen(false); }}>{id}</a>
               ))}
