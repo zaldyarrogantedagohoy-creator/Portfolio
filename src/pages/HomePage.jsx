@@ -887,10 +887,10 @@ const HomePage = () => {
     return count;
   };
 
-  const projectsCount = useCounter(30,  1800, countersVisible);
-  const clientsCount  = useCounter(18,  1800, countersVisible);
-  const yearsCount    = useCounter(4,   1200, countersVisible);
-  const coffeeCount   = useCounter(847, 2200, countersVisible);
+  const projectsCount = useCounter(5,    1800, countersVisible);
+  const clientsCount  = useCounter(10,   1800, countersVisible);
+  const yearsCount    = useCounter(2,    1200, countersVisible);
+  const coffeeCount   = useCounter(954, 2200, countersVisible);
 
   useEffect(() => {
     const observer = new IntersectionObserver(([entry]) => { if (entry.isIntersecting) setCountersVisible(true); }, { threshold: 0.3 });
