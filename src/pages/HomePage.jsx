@@ -1561,7 +1561,7 @@ const SkillCube = ({ skills }) => {
             </svg>
           </div>
           <div className="skills-header">
-            <span className="skills-kicker expertise-kicker"><IconCode size={12} color="#00ff88"/> core_expertise</span>
+            <span className="skills-kicker"><IconCode size={12} color="#00ff88"/> skills.json</span>
             <h2 className="section-title">core_expertise</h2>
             <p className="skills-subtitle">A snapshot of the tools and practices I use to build full stack web applications.</p>
           </div>

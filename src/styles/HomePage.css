@@ -220,47 +220,6 @@ section { padding: 4rem 0; }
 .skills-kicker::before { content: '$ '; color: var(--green); }
 .skills-kicker svg { flex-shrink: 0; }
 
-.expertise-kicker {
-  position: relative;
-  gap: 0.45rem;
-  margin-bottom: 1rem;
-  padding: 0.38rem 0.85rem 0.38rem 1rem;
-  color: var(--green);
-  background:
-    linear-gradient(90deg, rgba(0,255,136,0.08), rgba(0,229,255,0.04)),
-    rgba(6,10,14,0.72);
-  border: 1px solid rgba(0,255,136,0.26);
-  border-right: 0;
-  clip-path: polygon(0 0, calc(100% - 10px) 0, 100% 50%, calc(100% - 10px) 100%, 0 100%);
-  box-shadow: 0 0 18px rgba(0,255,136,0.08), inset 0 0 14px rgba(0,255,136,0.04);
-}
-
-.expertise-kicker::before {
-  content: '[';
-  color: var(--cyan);
-  text-shadow: 0 0 10px rgba(0,229,255,0.55);
-}
-
-.expertise-kicker::after {
-  content: '';
-  position: absolute;
-  left: calc(100% + 3px);
-  top: 50%;
-  width: min(28vw, 250px);
-  height: 34px;
-  transform: translateY(-50%);
-  pointer-events: none;
-  background:
-    radial-gradient(circle, rgba(0,255,136,0.72) 0%, rgba(0,255,136,0.72) 100%) right center / 5px 5px no-repeat,
-    linear-gradient(90deg, rgba(0,255,136,0.72), rgba(0,229,255,0.18), transparent) 0 50% / calc(100% - 5px) 1px no-repeat;
-  filter: drop-shadow(0 0 6px rgba(0,255,136,0.4));
-}
-
-.expertise-kicker svg {
-  color: var(--green);
-  filter: drop-shadow(0 0 5px rgba(0,255,136,0.65));
-}
-
 /* ══════════════════════════════════════════════════════════════
    HERO — TRUE 50/50 SPLIT
 ══════════════════════════════════════════════════════════════ */
@@ -2332,13 +2291,6 @@ footer { border-top: 1px solid var(--border); padding-top: 2rem; }
     flex-direction: column;
   }
 
-  .expertise-kicker::after {
-    width: min(34vw, 140px);
-    height: 24px;
-    background:
-      radial-gradient(circle, rgba(0,255,136,0.65) 0%, rgba(0,255,136,0.65) 100%) right center / 4px 4px no-repeat,
-      linear-gradient(90deg, rgba(0,255,136,0.65), rgba(0,229,255,0.14), transparent) 0 50% / calc(100% - 4px) 1px no-repeat;
-  }
 }
 
 @media (max-width: 480px) {
@@ -2417,9 +2369,6 @@ footer { border-top: 1px solid var(--border); padding-top: 2rem; }
     bottom: 1rem;
   }
 
-  .expertise-kicker::after {
-    width: 72px;
-  }
 }
 
 /* ── SKILL ARROW LABELS (futuristic HUD callouts) ── */
