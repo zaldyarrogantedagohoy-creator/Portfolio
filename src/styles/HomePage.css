@@ -2633,6 +2633,131 @@ footer { border-top: 1px solid var(--border); padding-top: 2rem; }
   100% { top: 100%; opacity: 0; }
 }
 
+@media (max-width: 780px) {
+  .skill-hud-stage {
+    width: min(280px, 100%);
+    min-height: 260px;
+  }
+
+  .skill-hud-label {
+    --hud-slant-x: 8px;
+    --hud-slant-y: 8px;
+    --hud-slant-len: 14px;
+    --hud-tick-size: 7px;
+  }
+
+  .skill-hud-label--right .hud-line,
+  .skill-hud-label--left .hud-line {
+    width: 16px !important;
+    height: 1px;
+  }
+
+  .skill-hud-label--right .hud-line::before,
+  .skill-hud-label--left .hud-line::before {
+    height: 1px;
+  }
+
+  .skill-hud-label--right .hud-line::after,
+  .skill-hud-label--left .hud-line::after {
+    top: -2px;
+    width: 8px;
+    height: 5px;
+    border-width: 1px;
+  }
+
+  .hud-tick {
+    border-width: 1px;
+    box-shadow:
+      0 0 0 1px color-mix(in srgb, var(--skill-color, var(--green)) 16%, transparent),
+      0 0 7px color-mix(in srgb, var(--skill-color, var(--green)) 64%, transparent);
+  }
+
+  .hud-text {
+    min-width: 68px;
+    max-width: 82px;
+    gap: 0.1rem;
+    padding: 0.28rem 0.42rem 0.32rem;
+    border-left-width: 2px;
+    white-space: normal;
+    clip-path: polygon(7px 0, calc(100% - 5px) 0, 100% 6px, 100% calc(100% - 8px), calc(100% - 12px) 100%, 0 100%, 0 7px);
+  }
+
+  .skill-hud-label--left .hud-text {
+    clip-path: polygon(5px 0, calc(100% - 8px) 0, 100% 7px, 100% 100%, 12px 100%, 0 calc(100% - 8px), 0 6px);
+  }
+
+  .hud-text::before {
+    inset: 3px;
+    clip-path: polygon(6px 0, 100% 0, 100% calc(100% - 7px), calc(100% - 10px) 100%, 0 100%, 0 6px);
+  }
+
+  .hud-text::after {
+    right: 6px;
+    top: 5px;
+    width: 10px;
+    height: 1px;
+    box-shadow:
+      -16px 0 0 color-mix(in srgb, var(--skill-color, var(--green)) 45%, transparent),
+      0 58px 0 color-mix(in srgb, var(--skill-color, var(--green)) 28%, transparent);
+  }
+
+  .skill-hud-label--left .hud-text::after {
+    left: 12px;
+    top: -3px;
+    box-shadow:
+      16px 0 0 color-mix(in srgb, var(--skill-color, var(--green)) 45%, transparent),
+      0 58px 0 color-mix(in srgb, var(--skill-color, var(--green)) 28%, transparent);
+  }
+
+  .hud-text-label {
+    font-size: 0.43rem;
+    letter-spacing: 0.06em;
+  }
+
+  .hud-text-value {
+    font-size: 0.56rem;
+    letter-spacing: 0;
+    line-height: 1.12;
+    overflow-wrap: anywhere;
+  }
+
+  .skill-hud-label.active .hud-text {
+    transform: scale(1.03);
+  }
+}
+
+@media (max-width: 480px) {
+  .slider-stage {
+    min-height: 300px;
+  }
+
+  .skill-hud-label {
+    --hud-slant-x: 6px;
+    --hud-slant-y: 6px;
+    --hud-slant-len: 10px;
+    --hud-tick-size: 6px;
+  }
+
+  .skill-hud-label--right .hud-line,
+  .skill-hud-label--left .hud-line {
+    width: 8px !important;
+  }
+
+  .hud-text {
+    min-width: 50px;
+    max-width: 58px;
+    padding: 0.22rem 0.32rem 0.26rem;
+  }
+
+  .hud-text-label {
+    font-size: 0.38rem;
+  }
+
+  .hud-text-value {
+    font-size: 0.48rem;
+  }
+}
+
 /* Left / right specific arrow orientation */
 .skill-hud-label.left .hud-line {
   background: linear-gradient(270deg, transparent, var(--green-dim));
