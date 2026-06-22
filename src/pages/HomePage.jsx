@@ -1,4 +1,6 @@
 import { useEffect, useState, useRef } from 'react';
+import * as pdfjsLib from 'pdfjs-dist';
+import pdfWorkerUrl from 'pdfjs-dist/build/pdf.worker.min.mjs?url';
 import { supabase } from '../supabaseClient';
 import '../styles/HomePage.css';
 
@@ -22,6 +24,16 @@ const SOCIAL_LINKS = {
 const ADMIN_SESSION_KEY = 'portfolio-admin-authenticated';
 const ADMIN_PASSCODE = import.meta.env.VITE_ADMIN_PASSCODE || 'ZeilDhagz_0008';
 const REVIEW_SETUP_MESSAGE = 'ERROR: Review table missing. Run supabase/site_reviews.sql in Supabase SQL Editor, then reload the app.';
+const PDF_PREVIEW_PAGE_LIMIT = 2;
+const PDF_ACCESS_FORM_INITIAL = {
+  fullName: '',
+  email: '',
+  phone: '',
+  reason: '',
+};
+
+pdfjsLib.GlobalWorkerOptions.workerSrc = pdfWorkerUrl;
+
 const isMissingReviewTableError = (error) => {
   const message = error?.message || '';
   return error?.code === '42P01' || error?.code === 'PGRST205' || /site_reviews|schema cache|Could not find the table/i.test(message);
@@ -319,6 +331,14 @@ const IconLock = ({ size = 13, color = 'currentColor' }) => (
   </svg>
 );
 
+const IconUnlock = ({ size = 13, color = 'currentColor' }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" aria-hidden="true">
+    <rect x="3" y="11" width="18" height="11" rx="2" stroke={color} strokeWidth="1.5" fill={color} fillOpacity="0.1"/>
+    <path d="M8 11V7a5 5 0 019.5-2.2" stroke={color} strokeWidth="1.5" strokeLinecap="round"/>
+    <circle cx="12" cy="16" r="1.5" fill={color}/>
+  </svg>
+);
+
 const IconEye = ({ size = 13, color = 'currentColor' }) => (
   <svg width={size} height={size} viewBox="0 0 24 24" fill="none" aria-hidden="true">
     <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" stroke={color} strokeWidth="1.5"/>
@@ -590,7 +610,129 @@ const ProcessStep = ({ step, label, desc, index, iconComponent }) => {
   );
 };
 
+const PdfCanvasPage = ({ pdfDocument, pageNumber, fileName }) => {
+  const frameRef = useRef(null);
+  const canvasRef = useRef(null);
+  const [frameWidth, setFrameWidth] = useState(0);
+  const [renderStatus, setRenderStatus] = useState({ type: 'loading', message: '' });
+
+  useEffect(() => {
+    const frame = frameRef.current;
+    if (!frame) return undefined;
+
+    const updateFrameWidth = () => {
+      const nextWidth = Math.floor(frame.clientWidth || 0);
+      setFrameWidth((currentWidth) => (
+        Math.abs(currentWidth - nextWidth) > 1 ? nextWidth : currentWidth
+      ));
+    };
+
+    updateFrameWidth();
+
+    if (typeof ResizeObserver === 'undefined') return undefined;
+
+    const observer = new ResizeObserver(updateFrameWidth);
+    observer.observe(frame);
+    return () => observer.disconnect();
+  }, []);
+
+  useEffect(() => {
+    if (!pdfDocument || !canvasRef.current || frameWidth <= 0) return undefined;
+
+    let cancelled = false;
+    let renderTask = null;
+
+    const renderPage = async () => {
+      setRenderStatus({ type: 'loading', message: '' });
+
+      try {
+        const page = await pdfDocument.getPage(pageNumber);
+        if (cancelled) return;
+
+        const baseViewport = page.getViewport({ scale: 1 });
+        const availableWidth = Math.max(240, frameWidth - 32);
+        const displayScale = Math.min(Math.max(availableWidth / baseViewport.width, 0.55), 1.7);
+        const viewport = page.getViewport({ scale: displayScale });
+        const outputScale = Math.min(window.devicePixelRatio || 1, 2);
+        const canvas = canvasRef.current;
+        const context = canvas.getContext('2d', { alpha: false });
+
+        if (!context) throw new Error('Canvas rendering is not supported in this browser.');
+
+        canvas.width = Math.floor(viewport.width * outputScale);
+        canvas.height = Math.floor(viewport.height * outputScale);
+        canvas.style.width = `${Math.floor(viewport.width)}px`;
+        canvas.style.height = `${Math.floor(viewport.height)}px`;
+
+        context.setTransform(1, 0, 0, 1, 0, 0);
+        context.clearRect(0, 0, canvas.width, canvas.height);
+
+        renderTask = page.render({
+          canvasContext: context,
+          viewport,
+          transform: outputScale !== 1 ? [outputScale, 0, 0, outputScale, 0, 0] : null,
+          background: 'white',
+        });
+
+        await renderTask.promise;
+        page.cleanup();
+
+        if (!cancelled) setRenderStatus({ type: 'ready', message: '' });
+      } catch (error) {
+        if (cancelled || error?.name === 'RenderingCancelledException') return;
+        setRenderStatus({
+          type: 'error',
+          message: error?.message || 'Could not render this PDF page.',
+        });
+      }
+    };
+
+    renderPage();
+
+    return () => {
+      cancelled = true;
+      if (renderTask) renderTask.cancel();
+    };
+  }, [pdfDocument, pageNumber, frameWidth]);
+
+  return (
+    <div
+      ref={frameRef}
+      className={`pdf-page-preview pdf-page-preview-${renderStatus.type}`}
+      onContextMenu={(e) => e.preventDefault()}
+    >
+      <span className="pdf-page-label">page_0{pageNumber}</span>
+      {renderStatus.type === 'loading' && (
+        <div className="pdf-page-render-status">
+          <IconSpinner size={16} color="currentColor" />
+          rendering_page()
+        </div>
+      )}
+      {renderStatus.type === 'error' && (
+        <div className="pdf-page-render-status pdf-page-render-status-error">
+          page_render_failed
+          <span>{renderStatus.message}</span>
+        </div>
+      )}
+      <canvas
+        ref={canvasRef}
+        className="pdf-page-canvas"
+        aria-label={`${fileName || 'PDF document'} page ${pageNumber}`}
+        onContextMenu={(e) => e.preventDefault()}
+      />
+    </div>
+  );
+};
+
 const FileViewer = ({ file, onClose }) => {
+  const [pdfRequestStatus, setPdfRequestStatus] = useState({ type: '', message: '' });
+  const [pdfRequesting, setPdfRequesting] = useState(false);
+  const [pdfAccessModalOpen, setPdfAccessModalOpen] = useState(false);
+  const [pdfAccessForm, setPdfAccessForm] = useState(PDF_ACCESS_FORM_INITIAL);
+  const [pdfDocument, setPdfDocument] = useState(null);
+  const [pdfLoading, setPdfLoading] = useState(false);
+  const [pdfError, setPdfError] = useState('');
+
   useEffect(() => {
     const blockSave = (e) => {
       if ((e.ctrlKey || e.metaKey) && e.key === 's') { e.preventDefault(); }
@@ -599,7 +741,119 @@ const FileViewer = ({ file, onClose }) => {
     return () => window.removeEventListener('keydown', blockSave);
   }, []);
 
+  useEffect(() => {
+    setPdfRequestStatus({ type: '', message: '' });
+    setPdfAccessModalOpen(false);
+    setPdfAccessForm(PDF_ACCESS_FORM_INITIAL);
+
+    if (!file || file.type !== 'pdf') {
+      setPdfDocument(null);
+      setPdfLoading(false);
+      setPdfError('');
+      return undefined;
+    }
+
+    let active = true;
+    const loadingTask = pdfjsLib.getDocument({ url: file.src });
+
+    setPdfDocument(null);
+    setPdfLoading(true);
+    setPdfError('');
+
+    loadingTask.promise
+      .then((documentProxy) => {
+        if (!active) {
+          documentProxy.destroy();
+          return;
+        }
+
+        setPdfDocument(documentProxy);
+        setPdfLoading(false);
+      })
+      .catch((error) => {
+        if (!active) return;
+        setPdfError(error?.message || 'Unable to load this PDF file.');
+        setPdfLoading(false);
+      });
+
+    return () => {
+      active = false;
+      loadingTask.destroy();
+    };
+  }, [file]);
+
   if (!file) return null;
+
+  const previewPageCount = pdfDocument
+    ? Math.min(pdfDocument.numPages, PDF_PREVIEW_PAGE_LIMIT)
+    : 0;
+  const hasLockedPdfPages = Boolean(pdfDocument && pdfDocument.numPages > previewPageCount);
+
+  const openPdfAccessModal = () => {
+    setPdfRequestStatus({ type: '', message: '' });
+    setPdfAccessModalOpen(true);
+  };
+
+  const closePdfAccessModal = () => {
+    if (pdfRequesting) return;
+    setPdfAccessModalOpen(false);
+  };
+
+  const handlePdfAccessFormChange = (event) => {
+    const { name, value } = event.target;
+    setPdfAccessForm((currentForm) => ({ ...currentForm, [name]: value }));
+    if (pdfRequestStatus.message) setPdfRequestStatus({ type: '', message: '' });
+  };
+
+  const handlePdfAccessRequest = async (event) => {
+    event.preventDefault();
+
+    if (!supabase) {
+      setPdfRequestStatus({ type: 'error', message: 'ERROR: Supabase is not configured.' });
+      return;
+    }
+
+    const payload = {
+      requester_name: pdfAccessForm.fullName.trim(),
+      requester_email: pdfAccessForm.email.trim(),
+      requester_phone: pdfAccessForm.phone.trim(),
+      request_reason: pdfAccessForm.reason.trim(),
+      file_name: file.name,
+      file_url: file.src,
+      file_type: file.ext || 'PDF',
+      status: 'pending',
+    };
+
+    if (
+      payload.requester_name.length < 2 ||
+      payload.requester_email.length < 5 ||
+      payload.requester_phone.length < 5 ||
+      payload.request_reason.length < 10
+    ) {
+      setPdfRequestStatus({ type: 'error', message: 'ERROR: Please complete all fields before submitting.' });
+      return;
+    }
+
+    setPdfRequesting(true);
+    setPdfRequestStatus({ type: '', message: 'Sending request...' });
+
+    const { error } = await supabase.from('pdf_access_requests').insert([payload]);
+
+    if (error) {
+      setPdfRequestStatus({
+        type: 'error',
+        message: /pdf_access_requests|schema cache|Could not find/i.test(error.message || '')
+          ? 'ERROR: Request table missing. Run supabase/pdf_access_requests.sql in Supabase SQL Editor.'
+          : `ERROR: ${error.message}`,
+      });
+    } else {
+      setPdfRequestStatus({ type: 'success', message: 'SUCCESS: Access request sent to admin.' });
+      setPdfAccessForm(PDF_ACCESS_FORM_INITIAL);
+      setPdfAccessModalOpen(false);
+    }
+
+    setPdfRequesting(false);
+  };
 
   return (
     <div
@@ -641,22 +895,51 @@ const FileViewer = ({ file, onClose }) => {
             )}
             {file.type === 'pdf' && (
               <div className="file-viewer-pdf-wrap">
-                <object
-                  data={`${file.src}#toolbar=0&navpanes=0&scrollbar=1&view=FitH`}
-                  type="application/pdf"
-                  width="100%"
-                  height="100%"
-                >
-                  <iframe
-                    title={file.name || 'Document'}
-                    src={`${file.src}#toolbar=0&navpanes=0&scrollbar=1&view=FitH`}
-                    sandbox="allow-same-origin allow-scripts"
-                    onContextMenu={(e) => e.preventDefault()}
-                  />
-                  <div className="file-viewer-pdf-fallback">
-                    <p>Unable to preview this PDF directly. <a href={file.src} target="_blank" rel="noopener noreferrer">Open it in a new tab</a>.</p>
+                {pdfLoading && (
+                  <div className="pdf-loading-state">
+                    <IconSpinner size={18} color="currentColor" />
+                    loading_pdf_preview()
                   </div>
-                </object>
+                )}
+                {pdfError && (
+                  <div className="pdf-error-state">
+                    pdf_preview_failed
+                    <span>{pdfError}</span>
+                  </div>
+                )}
+                {pdfDocument && Array.from({ length: previewPageCount }, (_, index) => {
+                  const page = index + 1;
+                  return (
+                    <PdfCanvasPage
+                      key={`${file.src}-page-${page}`}
+                      pdfDocument={pdfDocument}
+                      pageNumber={page}
+                      fileName={file.name}
+                    />
+                  );
+                })}
+                {hasLockedPdfPages && (
+                  <div className="pdf-locked-pages">
+                    <div className="pdf-locked-ghost" aria-hidden="true">
+                      <span></span><span></span><span></span>
+                    </div>
+                    <div className="pdf-locked-overlay">
+                      <button
+                        type="button"
+                        className="pdf-unlock-request-btn"
+                        onClick={openPdfAccessModal}
+                        disabled={pdfRequesting}
+                        aria-label="Request full PDF access"
+                      >
+                        <IconUnlock size={16} color="currentColor"/>
+                        request_access()
+                      </button>
+                      {pdfRequestStatus.message && (
+                        <div className={`pdf-request-status ${pdfRequestStatus.type}`}>{pdfRequestStatus.message}</div>
+                      )}
+                    </div>
+                  </div>
+                )}
               </div>
             )}
           </div>
@@ -671,6 +954,101 @@ const FileViewer = ({ file, onClose }) => {
           </div>
         </div>
       </div>
+      {pdfAccessModalOpen && (
+        <div
+          className="pdf-access-modal-overlay"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="pdf-access-modal-title"
+          onClick={closePdfAccessModal}
+        >
+          <div className="pdf-access-modal" onClick={(e) => e.stopPropagation()}>
+            <button
+              className="admin-login-close"
+              type="button"
+              onClick={closePdfAccessModal}
+              aria-label="Close access request form"
+              disabled={pdfRequesting}
+            >
+              x
+            </button>
+            <span className="admin-login-kicker">
+              <IconUnlock size={12} color="#00ff88"/> pdf_access_request
+            </span>
+            <h2 id="pdf-access-modal-title">request_access</h2>
+            <div className="pdf-access-file-chip">{file.name}</div>
+            <form onSubmit={handlePdfAccessRequest}>
+              <div className="form-group">
+                <label htmlFor="pdf-request-full-name" className="visually-hidden">Full name</label>
+                <input
+                  type="text"
+                  id="pdf-request-full-name"
+                  name="fullName"
+                  placeholder="// full_name"
+                  value={pdfAccessForm.fullName}
+                  onChange={handlePdfAccessFormChange}
+                  autoComplete="name"
+                  minLength="2"
+                  maxLength="120"
+                  required
+                />
+              </div>
+              <div className="form-group">
+                <label htmlFor="pdf-request-email" className="visually-hidden">Email address</label>
+                <input
+                  type="email"
+                  id="pdf-request-email"
+                  name="email"
+                  placeholder="// email_address"
+                  value={pdfAccessForm.email}
+                  onChange={handlePdfAccessFormChange}
+                  autoComplete="email"
+                  maxLength="180"
+                  required
+                />
+              </div>
+              <div className="form-group">
+                <label htmlFor="pdf-request-phone" className="visually-hidden">Phone number</label>
+                <input
+                  type="tel"
+                  id="pdf-request-phone"
+                  name="phone"
+                  placeholder="// phone_number"
+                  value={pdfAccessForm.phone}
+                  onChange={handlePdfAccessFormChange}
+                  autoComplete="tel"
+                  minLength="5"
+                  maxLength="40"
+                  required
+                />
+              </div>
+              <div className="form-group">
+                <label htmlFor="pdf-request-reason" className="visually-hidden">Reason for access</label>
+                <textarea
+                  id="pdf-request-reason"
+                  name="reason"
+                  rows="4"
+                  placeholder="// reason_for_access"
+                  value={pdfAccessForm.reason}
+                  onChange={handlePdfAccessFormChange}
+                  minLength="10"
+                  maxLength="1000"
+                  required
+                />
+              </div>
+              <button type="submit" className="btn submit-btn" disabled={pdfRequesting}>
+                {pdfRequesting
+                  ? <><IconSpinner size={15} color="currentColor"/> sending_request()</>
+                  : <>send_request() <IconUnlock size={13} color="currentColor"/></>
+                }
+              </button>
+              {pdfRequestStatus.message && (
+                <div className={`pdf-request-status ${pdfRequestStatus.type}`}>{pdfRequestStatus.message}</div>
+              )}
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

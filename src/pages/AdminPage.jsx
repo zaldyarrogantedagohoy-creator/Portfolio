@@ -51,6 +51,11 @@ const AdminPage = () => {
   const [reviewStatus, setReviewStatus] = useState('');
   const [reviewsSyncedAt, setReviewsSyncedAt] = useState(null);
   const [reviewActionId, setReviewActionId] = useState(null);
+  const [pdfRequests, setPdfRequests] = useState([]);
+  const [isLoadingPdfRequests, setIsLoadingPdfRequests] = useState(false);
+  const [pdfRequestStatus, setPdfRequestStatus] = useState('');
+  const [pdfRequestsSyncedAt, setPdfRequestsSyncedAt] = useState(null);
+  const [pdfRequestActionId, setPdfRequestActionId] = useState(null);
 
   useEffect(() => {
     const hasAdminAccess = window.sessionStorage.getItem(ADMIN_SESSION_KEY) === 'true';
@@ -170,12 +175,84 @@ const AdminPage = () => {
     setReviewActionId(null);
   };
 
+  const fetchPdfRequests = useCallback(async () => {
+    if (!supabase) {
+      setPdfRequestStatus('Supabase env missing: add VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY.');
+      return;
+    }
+
+    setIsLoadingPdfRequests(true);
+    setPdfRequestStatus('');
+
+    const { data, error } = await supabase.rpc('get_pdf_access_requests_for_admin', {
+      admin_passcode: ADMIN_PASSCODE,
+    });
+
+    let visibleRequests = data || [];
+    let fetchError = error;
+
+    if (fetchError?.code === 'PGRST202') {
+      const fallback = await supabase.from('pdf_access_requests').select('*').limit(100);
+      visibleRequests = fallback.data || [];
+      fetchError = fallback.error;
+    }
+
+    if (fetchError) {
+      setPdfRequestStatus(/pdf_access_requests|schema cache|Could not find|function.*not found/i.test(fetchError.message || '')
+        ? 'PDF request table missing. Run supabase/pdf_access_requests.sql in Supabase SQL Editor, then reload the app.'
+        : `ERROR: ${fetchError.message}`);
+    } else {
+      const sortedRequests = sortByNewest(visibleRequests);
+      setPdfRequests(sortedRequests);
+      setPdfRequestStatus(
+        sortedRequests.length
+          ? `Latest PDF requests synced: ${sortedRequests.length} visible.`
+          : 'No PDF access requests yet.',
+      );
+      setPdfRequestsSyncedAt(new Date().toISOString());
+    }
+
+    setIsLoadingPdfRequests(false);
+  }, []);
+
+  const updatePdfRequestStatus = async (requestId, nextStatus) => {
+    if (!supabase || !requestId) return;
+
+    setPdfRequestActionId(requestId);
+    setPdfRequestStatus('');
+
+    const { error } = await supabase.rpc('set_pdf_access_request_status', {
+      request_id: requestId,
+      new_status: nextStatus,
+      admin_passcode: ADMIN_PASSCODE,
+    });
+
+    if (error && error.code === 'PGRST202') {
+      const fallback = await supabase
+        .from('pdf_access_requests')
+        .update({ status: nextStatus })
+        .eq('id', requestId);
+      if (fallback.error) {
+        setPdfRequestStatus(`ERROR: ${fallback.error.message}`);
+      } else {
+        await fetchPdfRequests();
+      }
+    } else if (error) {
+      setPdfRequestStatus(`ERROR: ${error.message}`);
+    } else {
+      await fetchPdfRequests();
+    }
+
+    setPdfRequestActionId(null);
+  };
+
   useEffect(() => {
     if (isAuthorized) {
       fetchMessages();
       fetchReviews();
+      fetchPdfRequests();
     }
-  }, [fetchMessages, fetchReviews, isAuthorized]);
+  }, [fetchMessages, fetchReviews, fetchPdfRequests, isAuthorized]);
 
   useEffect(() => {
     if (!isAuthorized || !supabase) return undefined;
@@ -211,17 +288,34 @@ const AdminPage = () => {
     };
   }, [fetchReviews, isAuthorized]);
 
+  useEffect(() => {
+    if (!isAuthorized || !supabase) return undefined;
+
+    const channel = supabase
+      .channel('admin-pdf-access-requests')
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'pdf_access_requests' },
+        () => fetchPdfRequests(),
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [fetchPdfRequests, isAuthorized]);
+
   const stats = useMemo(() => {
     const pending = messages.filter((message) => message.status === 'pending').length;
     const pendingReviews = reviews.filter((review) => review.status === 'pending').length;
-    const approvedReviews = reviews.filter((review) => review.status === 'approved').length;
+    const pendingPdfRequests = pdfRequests.filter((request) => request.status === 'pending').length;
     return [
       { label: 'messages', value: messages.length },
       { label: 'pending', value: pending },
       { label: 'review queue', value: pendingReviews },
-      { label: 'posted reviews', value: approvedReviews },
+      { label: 'pdf requests', value: pendingPdfRequests },
     ];
-  }, [messages, reviews]);
+  }, [messages, pdfRequests, reviews]);
 
   const handleLogout = () => {
     window.sessionStorage.removeItem(ADMIN_SESSION_KEY);
@@ -365,6 +459,68 @@ const AdminPage = () => {
                       disabled={reviewActionId === review.id || review.status === 'rejected'}
                     >
                       hide()
+                    </button>
+                  </div>
+                </div>
+              </article>
+            ))
+          )}
+        </div>
+      </section>
+
+      <section className="admin-panel">
+        <div className="admin-panel-header">
+          <div>
+            <span className="admin-kicker">$ pdf_access_requests</span>
+            <h2>unlock_queue</h2>
+            {pdfRequestsSyncedAt && <p className="admin-sync-time">last_sync: {formatDate(pdfRequestsSyncedAt)}</p>}
+          </div>
+          <button className="admin-btn" type="button" onClick={fetchPdfRequests} disabled={isLoadingPdfRequests}>
+            {isLoadingPdfRequests ? 'syncing...' : 'refresh()'}
+          </button>
+        </div>
+
+        {pdfRequestStatus && <p className="admin-status">{pdfRequestStatus}</p>}
+
+        <div className="admin-message-list">
+          {pdfRequests.length === 0 ? (
+            <div className="admin-empty-state">No PDF access requests available.</div>
+          ) : (
+            pdfRequests.map((request) => (
+              <article className="admin-message-card admin-review-card admin-pdf-request-card" key={request.id || `${request.file_name}-${getMessageDate(request)}`}>
+                <div className="admin-message-meta">
+                  <strong>{request.requester_name || 'anonymous'}</strong>
+                  <span>{request.requester_email || 'no_email'}</span>
+                  <span>{request.requester_phone || 'no_number'}</span>
+                  <span>{formatDate(getMessageDate(request))}</span>
+                </div>
+                <div className="admin-pdf-request-body">
+                  <span className="admin-pdf-request-label">requested_file</span>
+                  <strong>{request.file_name || 'unknown_pdf'}</strong>
+                  <span>{request.file_type || 'PDF'}</span>
+                  <p>{request.request_reason || 'No reason provided.'}</p>
+                  <small>{request.file_url || 'No file URL recorded.'}</small>
+                </div>
+                <div className="admin-review-controls">
+                  <span className={`admin-message-status ${request.status || 'pending'}`}>
+                    {request.status || 'pending'}
+                  </span>
+                  <div className="admin-review-actions">
+                    <button
+                      type="button"
+                      className="admin-btn admin-btn-small"
+                      onClick={() => updatePdfRequestStatus(request.id, 'approved')}
+                      disabled={pdfRequestActionId === request.id || request.status === 'approved'}
+                    >
+                      approve()
+                    </button>
+                    <button
+                      type="button"
+                      className="admin-btn admin-btn-small admin-btn-muted"
+                      onClick={() => updatePdfRequestStatus(request.id, 'rejected')}
+                      disabled={pdfRequestActionId === request.id || request.status === 'rejected'}
+                    >
+                      reject()
                     </button>
                   </div>
                 </div>

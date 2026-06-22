@@ -300,6 +300,42 @@ body {
   grid-template-columns: minmax(180px, 250px) 1fr minmax(180px, auto);
 }
 
+.admin-pdf-request-card {
+  grid-template-columns: minmax(190px, 260px) minmax(0, 1fr) minmax(180px, auto);
+}
+
+.admin-pdf-request-body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  min-width: 0;
+}
+
+.admin-pdf-request-body strong {
+  color: var(--admin-text-bright);
+  font-size: 0.88rem;
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+}
+
+.admin-pdf-request-body span,
+.admin-pdf-request-body small {
+  color: var(--admin-text-dim);
+  font-size: 0.72rem;
+  overflow-wrap: anywhere;
+}
+
+.admin-pdf-request-body p {
+  margin: 0.25rem 0 0;
+}
+
+.admin-pdf-request-label {
+  color: var(--admin-green) !important;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
 .admin-review-stars {
   color: var(--admin-amber);
   letter-spacing: 0.08em;
