@@ -1877,6 +1877,18 @@ section { padding: 4rem 0; }
 
 /* ── TESTIMONIALS ── */
 .testimonials-section { padding: 2.5rem 0 3.5rem; }
+.testimonials-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 0.75rem;
+}
+.testimonials-header .section-title { margin-bottom: 1.5rem; }
+.review-add-btn {
+  flex-shrink: 0;
+  margin-top: 0.25rem;
+}
 
 .testimonials-scroll-container {
   overflow: hidden;
@@ -1889,6 +1901,10 @@ section { padding: 4rem 0; }
   gap: 1.2rem;
   animation: scrollTestimonials 30s linear infinite;
   width: fit-content;
+}
+.testimonials-track-static {
+  width: 100%;
+  animation: none;
 }
 
 @keyframes scrollTestimonials {
@@ -1911,6 +1927,14 @@ section { padding: 4rem 0; }
 .testimonial-author strong { display: block; color: var(--text-bright); font-size: 0.85rem; }
 .testimonial-author span  { display: block; color: var(--text-dim); font-size: 0.7rem; }
 .testimonial-stars { margin-top: 0.9rem; color: var(--amber); font-size: 0.8rem; letter-spacing: 2px; }
+.testimonial-stars .star-off { color: rgba(255,183,0,0.22); }
+.reviews-empty-state {
+  border: 1px solid var(--border);
+  background: var(--bg-2);
+  color: var(--text-dim);
+  padding: 1.2rem 1.4rem;
+  font-size: 0.82rem;
+}
 
 /* ── CONTACT ── */
 .contact-section { padding-top: 2.5rem; }
@@ -1971,6 +1995,25 @@ section { padding: 4rem 0; }
 footer { border-top: 1px solid var(--border); padding-top: 2rem; }
 .footer-inner { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1.5rem; padding-bottom: 1.5rem; }
 .footer-brand { display: flex; align-items: center; gap: 0.6rem; font-weight: 700; color: var(--text-dim); font-size: 0.85rem; }
+.footer-logo-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+  line-height: 0;
+  opacity: 0.9;
+  transition: opacity 0.15s, filter 0.15s, transform 0.15s;
+}
+.footer-logo-button:hover,
+.footer-logo-button:focus-visible {
+  opacity: 1;
+  filter: drop-shadow(0 0 8px rgba(0,255,136,0.45));
+  transform: translateY(-1px);
+}
+.footer-logo-button:focus-visible { outline: 1px solid var(--green); outline-offset: 4px; }
 .footer-logo { height: 28px; width: auto; filter: invert(1) sepia(1) saturate(3) hue-rotate(90deg); }
 .footer-nav { display: flex; gap: 1.5rem; flex-wrap: wrap; }
 .footer-nav a { text-decoration: none; color: var(--text-dim); font-size: 0.78rem; transition: color 0.15s; }
@@ -1994,6 +2037,128 @@ footer { border-top: 1px solid var(--border); padding-top: 2rem; }
 
 .footer-copy { text-align: center; padding: 1.5rem 0 2rem; color: var(--text-dim); font-size: 0.75rem; display: flex; align-items: center; justify-content: center; gap: 0.3rem; flex-wrap: wrap; }
 .footer-copy svg { flex-shrink: 0; }
+
+/* ── ADMIN LOGIN ── */
+.admin-login-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1300;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+  background:
+    radial-gradient(circle at 50% 15%, rgba(0,229,255,0.12), transparent 34%),
+    rgba(0,0,0,0.84);
+}
+.admin-login-modal {
+  position: relative;
+  width: min(420px, 100%);
+  border: 1px solid var(--border-hi);
+  background:
+    linear-gradient(135deg, rgba(0,255,136,0.07), transparent 35%),
+    var(--bg-2);
+  color: var(--text);
+  padding: 2rem;
+  box-shadow: 0 0 55px rgba(0,0,0,0.62), 0 0 28px var(--green-glow);
+  animation: modalIn 0.25s ease;
+}
+.admin-login-close {
+  position: absolute;
+  top: 0.85rem;
+  right: 0.85rem;
+  width: 34px;
+  height: 34px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--border);
+  background: var(--bg-3);
+  color: var(--text);
+  font-family: var(--font-mono);
+  cursor: pointer;
+  transition: 0.15s;
+}
+.admin-login-close:hover,
+.admin-login-close:focus-visible {
+  background: var(--green);
+  border-color: var(--green);
+  color: var(--bg);
+}
+.admin-login-kicker {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  color: var(--green);
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  margin-bottom: 0.75rem;
+}
+.admin-login-kicker::before { content: '$ '; color: var(--text-dim); }
+.admin-login-modal h2 {
+  margin: 0 0 1.4rem;
+  color: var(--text-bright);
+  font-size: 1.45rem;
+  letter-spacing: 0;
+}
+.admin-login-modal h2::before { content: '// '; color: var(--text-dim); font-weight: 400; }
+
+.review-modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1300;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+  background:
+    radial-gradient(circle at 50% 15%, rgba(255,183,0,0.09), transparent 34%),
+    rgba(0,0,0,0.84);
+}
+.review-modal {
+  position: relative;
+  width: min(460px, 100%);
+  border: 1px solid var(--border-hi);
+  background:
+    linear-gradient(135deg, rgba(0,255,136,0.07), transparent 35%),
+    var(--bg-2);
+  color: var(--text);
+  padding: 2rem;
+  box-shadow: 0 0 55px rgba(0,0,0,0.62), 0 0 28px var(--green-glow);
+  animation: modalIn 0.25s ease;
+}
+.review-modal h2 {
+  margin: 0 0 1.4rem;
+  color: var(--text-bright);
+  font-size: 1.45rem;
+  letter-spacing: 0;
+}
+.review-modal h2::before { content: '// '; color: var(--text-dim); font-weight: 400; }
+.review-rating-field {
+  display: flex;
+  gap: 0.35rem;
+  align-items: center;
+  margin: 0 0 1rem;
+}
+.review-star-button {
+  width: 38px;
+  height: 38px;
+  border: 1px solid var(--border);
+  background: var(--bg-3);
+  color: rgba(255,183,0,0.26);
+  font-size: 1.15rem;
+  cursor: pointer;
+  transition: color 0.15s, border-color 0.15s, box-shadow 0.15s;
+}
+.review-star-button.active,
+.review-star-button:hover,
+.review-star-button:focus-visible {
+  color: var(--amber);
+  border-color: rgba(255,183,0,0.45);
+  box-shadow: 0 0 12px rgba(255,183,0,0.12);
+}
 
 /* ── SCROLL TO TOP ── */
 .scroll-top {

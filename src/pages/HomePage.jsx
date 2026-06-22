@@ -19,6 +19,17 @@ const SOCIAL_LINKS = {
   twitter:  'https://x.com/zaldydagohoy',
   dribbble: 'https://dribbble.com/zaldy-dagohoy',
 };
+const ADMIN_SESSION_KEY = 'portfolio-admin-authenticated';
+const ADMIN_PASSCODE = import.meta.env.VITE_ADMIN_PASSCODE || 'ZeilDhagz_0008';
+const REVIEW_SETUP_MESSAGE = 'ERROR: Review table missing. Run supabase/site_reviews.sql in Supabase SQL Editor, then reload the app.';
+const isMissingReviewTableError = (error) => {
+  const message = error?.message || '';
+  return error?.code === '42P01' || error?.code === 'PGRST205' || /site_reviews|schema cache|Could not find the table/i.test(message);
+};
+const isMissingContactPhoneError = (error) => {
+  const message = error?.message || '';
+  return /phone|schema cache|Could not find/i.test(message);
+};
 const assetFilename = (path) => path.replace(/^.*[\\/]/, '').replace(/\.(png|jpe?g|pdf)$/i, '');
 const assetType = (path) => {
   const ext = path.split('.').pop().toLowerCase();
@@ -35,6 +46,14 @@ const PROJECT_DESCRIPTIONS = {
 
 const getProjectDescription = (name) =>
   PROJECT_DESCRIPTIONS[name.trim().toLowerCase()] || 'No description added yet — add one to PROJECT_DESCRIPTIONS in HomePage.jsx.';
+
+const getInitials = (name = '') =>
+  name
+    .trim()
+    .split(/\s+/)
+    .slice(0, 2)
+    .map((part) => part[0]?.toUpperCase() || '')
+    .join('') || 'VR';
 
 const buildAssets = (entries) =>
   Object.entries(entries)
@@ -901,7 +920,7 @@ const HeroSlideshow = ({ children, scrollToSection, socialItems, stackIcons }) =
 };
 
 const HomePage = () => {
-  const [formData, setFormData] = useState({ name: '', email: '', message: '' });
+  const [formData, setFormData] = useState({ name: '', email: '', phone: '', message: '' });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formStatus, setFormStatus] = useState({ type: '', message: '' });
   const [openFolder, setOpenFolder] = useState(null);
@@ -971,6 +990,15 @@ const HomePage = () => {
 
   const [viewerFile, setViewerFile] = useState(null);
   const [viewerOpen, setViewerOpen] = useState(false);
+  const [adminLoginOpen, setAdminLoginOpen] = useState(false);
+  const [adminPasscode, setAdminPasscode] = useState('');
+  const [adminLoginError, setAdminLoginError] = useState('');
+  const [approvedReviews, setApprovedReviews] = useState([]);
+  const [reviewsLoading, setReviewsLoading] = useState(false);
+  const [reviewModalOpen, setReviewModalOpen] = useState(false);
+  const [reviewForm, setReviewForm] = useState({ name: '', rating: 5, comment: '' });
+  const [reviewSubmitting, setReviewSubmitting] = useState(false);
+  const [reviewStatus, setReviewStatus] = useState({ type: '', message: '' });
 
   const openFileViewer = (file) => {
     if (!file) return;
@@ -978,12 +1006,87 @@ const HomePage = () => {
     setViewerOpen(true);
   };
   const closeFileViewer = () => { setViewerOpen(false); setViewerFile(null); };
+  const openAdminLogin = () => {
+    setAdminLoginError('');
+    setAdminPasscode('');
+    setAdminLoginOpen(true);
+  };
+  const closeAdminLogin = () => {
+    setAdminLoginOpen(false);
+    setAdminLoginError('');
+    setAdminPasscode('');
+  };
+  const openReviewModal = () => {
+    setReviewStatus({ type: '', message: '' });
+    setReviewModalOpen(true);
+  };
+  const closeReviewModal = () => {
+    setReviewModalOpen(false);
+    setReviewStatus({ type: '', message: '' });
+    setReviewForm({ name: '', rating: 5, comment: '' });
+  };
 
   useEffect(() => {
     document.body.style.overflow =
-      (viewerOpen || selectedCertificate || showProjectModal) ? 'hidden' : '';
+      (viewerOpen || selectedCertificate || showProjectModal || adminLoginOpen || reviewModalOpen) ? 'hidden' : '';
     return () => { document.body.style.overflow = ''; };
-  }, [viewerOpen, selectedCertificate, showProjectModal]);
+  }, [viewerOpen, selectedCertificate, showProjectModal, adminLoginOpen, reviewModalOpen]);
+
+  useEffect(() => {
+    if (!adminLoginOpen && !reviewModalOpen) return undefined;
+    const handleKeyDown = (event) => {
+      if (event.key === 'Escape') {
+        if (adminLoginOpen) closeAdminLogin();
+        if (reviewModalOpen) closeReviewModal();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [adminLoginOpen, reviewModalOpen]);
+
+  const fetchApprovedReviews = async () => {
+    if (!supabase) {
+      setApprovedReviews([]);
+      return;
+    }
+
+    setReviewsLoading(true);
+    const { data, error } = await supabase
+      .from('site_reviews')
+      .select('id, name, rating, comment, status, created_at')
+      .eq('status', 'approved')
+      .order('created_at', { ascending: false })
+      .limit(12);
+
+    if (error) {
+      console.warn('Review fetch error:', error);
+      setApprovedReviews([]);
+    } else {
+      setApprovedReviews(data || []);
+    }
+    setReviewsLoading(false);
+  };
+
+  useEffect(() => {
+    fetchApprovedReviews();
+  }, []);
+
+  useEffect(() => {
+    if (!supabase) return undefined;
+
+    const channel = supabase
+      .channel('public-site-reviews')
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'site_reviews' },
+        () => fetchApprovedReviews(),
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, []);
 
   const openCertificate  = (cert) => setSelectedCertificate(cert);
   const closeCertificate = ()     => setSelectedCertificate(null);
@@ -991,13 +1094,18 @@ const HomePage = () => {
   const handleChange = (e) => { const { name, value } = e.target; setFormData(prev => ({ ...prev, [name]: value })); };
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!formData.name || !formData.message) {
-      setFormStatus({ type: 'error', message: 'ERROR: Please fill in name and comment.' });
+    if (!formData.name || !formData.email || !formData.phone || !formData.message) {
+      setFormStatus({ type: 'error', message: 'ERROR: Please fill in name, email, phone, and comment.' });
       return;
     }
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (formData.email && !emailRegex.test(formData.email)) {
       setFormStatus({ type: 'error', message: 'ERROR: Invalid email address.' });
+      return;
+    }
+    const phoneRegex = /^[+()\-\s\d]{7,30}$/;
+    if (formData.phone && !phoneRegex.test(formData.phone)) {
+      setFormStatus({ type: 'error', message: 'ERROR: Invalid phone number.' });
       return;
     }
     setIsSubmitting(true);
@@ -1007,24 +1115,83 @@ const HomePage = () => {
         console.warn('Supabase not configured; falling back to local submit.');
         await new Promise((res) => setTimeout(res, 700));
         setFormStatus({ type: 'success', message: 'SUCCESS: Message submitted (local fallback).' });
-        setFormData({ name: '', email: '', message: '' });
+        setFormData({ name: '', email: '', phone: '', message: '' });
       } else {
         const { error } = await supabase.from('contact_messages').insert([{
           name: formData.name,
           email: formData.email || null,
+          phone: formData.phone || null,
           message: formData.message,
           status: 'pending',
         }]);
         if (error) throw error;
         setFormStatus({ type: 'success', message: 'SUCCESS: Message saved to Supabase.' });
-        setFormData({ name: '', email: '', message: '' });
+        setFormData({ name: '', email: '', phone: '', message: '' });
       }
     } catch (err) {
       console.error('Submit error:', err);
-      setFormStatus({ type: 'error', message: `ERROR: ${err?.message || 'Unable to submit message.'}` });
+      setFormStatus({
+        type: 'error',
+        message: isMissingContactPhoneError(err)
+          ? 'ERROR: Phone column missing. Run supabase/contact_messages.sql in Supabase SQL Editor, then reload the app.'
+          : `ERROR: ${err?.message || 'Unable to submit message.'}`,
+      });
     } finally {
       setIsSubmitting(false);
     }
+  };
+
+  const handleAdminLoginSubmit = (e) => {
+    e.preventDefault();
+    if (adminPasscode.trim() !== ADMIN_PASSCODE) {
+      setAdminLoginError('ERROR: Invalid admin passcode.');
+      return;
+    }
+
+    window.sessionStorage.setItem(ADMIN_SESSION_KEY, 'true');
+    window.location.assign('/admin');
+  };
+
+  const handleReviewSubmit = async (e) => {
+    e.preventDefault();
+    const name = reviewForm.name.trim();
+    const comment = reviewForm.comment.trim();
+    const rating = Number(reviewForm.rating);
+
+    if (!name || !comment) {
+      setReviewStatus({ type: 'error', message: 'ERROR: Name and comment are required.' });
+      return;
+    }
+    if (rating < 1 || rating > 5) {
+      setReviewStatus({ type: 'error', message: 'ERROR: Select a 1-5 star rating.' });
+      return;
+    }
+    if (!supabase) {
+      setReviewStatus({ type: 'error', message: 'ERROR: Supabase is not configured.' });
+      return;
+    }
+
+    setReviewSubmitting(true);
+    setReviewStatus({ type: '', message: 'Submitting review...' });
+
+    const { error } = await supabase.from('site_reviews').insert([{
+      name,
+      rating,
+      comment,
+      status: 'pending',
+    }]);
+
+    if (error) {
+      setReviewStatus({
+        type: 'error',
+        message: isMissingReviewTableError(error) ? REVIEW_SETUP_MESSAGE : `ERROR: ${error.message}`,
+      });
+    } else {
+      setReviewForm({ name: '', rating: 5, comment: '' });
+      setReviewStatus({ type: 'success', message: 'SUCCESS: Review submitted for approval.' });
+    }
+
+    setReviewSubmitting(false);
   };
 
   const scrollToSection = (id) => { const el = document.getElementById(id); if (el) el.scrollIntoView({ behavior: 'smooth' }); };
@@ -1248,7 +1415,10 @@ const SkillCube = ({ skills }) => {
       </div>
     </div>
   );
-};
+  };
+
+  const testimonialReviews =
+    approvedReviews.length > 1 ? [...approvedReviews, ...approvedReviews] : approvedReviews;
 
   return (
     <div className="homepage">
@@ -1575,37 +1745,40 @@ const SkillCube = ({ skills }) => {
               <path d="M0,35 C220,23 380,24 600,34 S980,48 1200,35" />
             </svg>
           </div>
-          <span className="skills-kicker"><IconQuote size={12} color="#00ff88"/> testimonials.json</span>
-          <h2 className="section-title">what_people_say</h2>
-          <div className="testimonials-scroll-container">
-            <div className="testimonials-track">
-              {[
-                { name: 'Ana Reyes',   role: 'Product Manager, TechStart', text: 'Zaldy delivered a beautiful, well-structured interface under a tight deadline. His attention to detail and communication were exceptional.',          avatar: 'AR' },
-                { name: 'Mark Santos', role: 'CTO, PixelForge',            text: "One of the strongest full stack builds I've seen. Clean interfaces, thoughtful architecture, and reliable data handling. Would hire again without hesitation.", avatar: 'MS' },
-                { name: 'Lena Cruz',   role: 'UX Lead, DesignBloom',       text: 'Zaldy has a rare combination of design sensibility and engineering skill. He understands both pixels and people. Truly a full-package collaborator.',   avatar: 'LC' },
-                { name: 'David Chen',  role: 'Founder, WebSync Labs',      text: 'Exceptional problem-solving abilities and a strategic mindset. Zaldy goes beyond just coding—he thinks about the business impact of every feature.',                   avatar: 'DC' },
-                { name: 'Sofia Morales', role: 'Senior Designer, Nexus',   text: 'Working with Zaldy was seamless. He translates design concepts into pixel-perfect implementations while suggesting practical improvements.',                    avatar: 'SM' },
-                { name: 'James Wilson', role: 'VP Engineering, InnovateTech', text: 'Demonstrated leadership in complex projects. Proactive in communication and deeply invested in delivering excellence. A true asset to any team.',         avatar: 'JW' },
-              ].concat([
-                { name: 'Ana Reyes',   role: 'Product Manager, TechStart', text: 'Zaldy delivered a beautiful, well-structured interface under a tight deadline. His attention to detail and communication were exceptional.',          avatar: 'AR' },
-                { name: 'Mark Santos', role: 'CTO, PixelForge',            text: "One of the strongest full stack builds I've seen. Clean interfaces, thoughtful architecture, and reliable data handling. Would hire again without hesitation.", avatar: 'MS' },
-                { name: 'Lena Cruz',   role: 'UX Lead, DesignBloom',       text: 'Zaldy has a rare combination of design sensibility and engineering skill. He understands both pixels and people. Truly a full-package collaborator.',   avatar: 'LC' },
-                { name: 'David Chen',  role: 'Founder, WebSync Labs',      text: 'Exceptional problem-solving abilities and a strategic mindset. Zaldy goes beyond just coding—he thinks about the business impact of every feature.',                   avatar: 'DC' },
-                { name: 'Sofia Morales', role: 'Senior Designer, Nexus',   text: 'Working with Zaldy was seamless. He translates design concepts into pixel-perfect implementations while suggesting practical improvements.',                    avatar: 'SM' },
-                { name: 'James Wilson', role: 'VP Engineering, InnovateTech', text: 'Demonstrated leadership in complex projects. Proactive in communication and deeply invested in delivering excellence. A true asset to any team.',         avatar: 'JW' },
-              ]).map(({ name, role, text, avatar }, idx) => (
-                <div key={`${name}-${idx}`} className="testimonial-card">
-                  <div className="testimonial-quote-icon"><IconQuote size={20} color="#00ff88"/></div>
-                  <p className="testimonial-text">{text}</p>
-                  <div className="testimonial-author">
-                    <div className="testimonial-avatar">{avatar}</div>
-                    <div><strong>{name}</strong><span>{role}</span></div>
-                  </div>
-                  <div className="testimonial-stars" aria-label="5 stars">{'★★★★★'.split('').map((s,i) => <span key={i}>{s}</span>)}</div>
-                </div>
-              ))}
+          <div className="testimonials-header">
+            <div>
+              <span className="skills-kicker"><IconQuote size={12} color="#00ff88"/> testimonials.json</span>
+              <h2 className="section-title">what_people_say</h2>
             </div>
+            <button type="button" className="btn btn-outline review-add-btn" onClick={openReviewModal}>
+              add_review() <IconStar size={13} color="currentColor"/>
+            </button>
           </div>
+          {approvedReviews.length === 0 ? (
+            <div className="reviews-empty-state">
+              {reviewsLoading ? 'loading_reviews...' : 'No approved reviews yet.'}
+            </div>
+          ) : (
+            <div className="testimonials-scroll-container">
+              <div className={`testimonials-track${approvedReviews.length > 1 ? '' : ' testimonials-track-static'}`}>
+                {testimonialReviews.map((review, idx) => (
+                  <div key={`${review.id || review.name}-${idx}`} className="testimonial-card">
+                    <div className="testimonial-quote-icon"><IconQuote size={20} color="#00ff88"/></div>
+                    <p className="testimonial-text">{review.comment}</p>
+                    <div className="testimonial-author">
+                      <div className="testimonial-avatar">{getInitials(review.name)}</div>
+                      <div><strong>{review.name}</strong><span>visitor review</span></div>
+                    </div>
+                    <div className="testimonial-stars" aria-label={`${review.rating} of 5 stars`}>
+                      {[1, 2, 3, 4, 5].map((star) => (
+                        <span key={star} className={star <= Number(review.rating) ? 'star-on' : 'star-off'}>★</span>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </section>
 
         {/* CONTACT */}
@@ -1653,7 +1826,11 @@ const SkillCube = ({ skills }) => {
                 </div>
                 <div className="form-group">
                   <label htmlFor="email" className="visually-hidden">Email address</label>
-                  <input type="email" id="email" name="email" placeholder="// email_address (optional)" value={formData.email} onChange={handleChange} />
+                  <input type="email" id="email" name="email" placeholder="// email_address" value={formData.email} onChange={handleChange} required />
+                </div>
+                <div className="form-group">
+                  <label htmlFor="phone" className="visually-hidden">Phone number</label>
+                  <input type="tel" id="phone" name="phone" placeholder="// phone_number" value={formData.phone} onChange={handleChange} required />
                 </div>
                 <div className="form-group">
                   <label htmlFor="message" className="visually-hidden">Message</label>
@@ -1678,7 +1855,9 @@ const SkillCube = ({ skills }) => {
         <footer>
           <div className="footer-inner">
             <div className="footer-brand">
-              <img src={logoImg} alt="Logo" className="footer-logo" onError={(e) => e.currentTarget.style.display='none'} />
+              <button type="button" className="footer-logo-button" onClick={openAdminLogin} aria-label="Open admin login">
+                <img src={logoImg} alt="Logo" className="footer-logo" onError={(e) => e.currentTarget.style.display='none'} />
+              </button>
               <span>zaldy_dagohoy</span>
             </div>
             <nav className="footer-nav" aria-label="Footer navigation">
@@ -1694,6 +1873,109 @@ const SkillCube = ({ skills }) => {
           </p>
         </footer>
       </div>
+
+      {adminLoginOpen && (
+        <div className="admin-login-overlay" role="dialog" aria-modal="true" aria-labelledby="admin-login-title" onClick={closeAdminLogin}>
+          <div className="admin-login-modal" onClick={(e) => e.stopPropagation()}>
+            <button className="admin-login-close" type="button" onClick={closeAdminLogin} aria-label="Close">x</button>
+            <span className="admin-login-kicker"><IconLock size={12} color="#00ff88"/> restricted_area</span>
+            <h2 id="admin-login-title">admin_login</h2>
+            <form onSubmit={handleAdminLoginSubmit} noValidate>
+              <div className="form-group">
+                <label htmlFor="admin-passcode" className="visually-hidden">Admin passcode</label>
+                <input
+                  type="password"
+                  id="admin-passcode"
+                  name="admin-passcode"
+                  placeholder="// passcode"
+                  value={adminPasscode}
+                  onChange={(e) => {
+                    setAdminPasscode(e.target.value);
+                    setAdminLoginError('');
+                  }}
+                  autoComplete="current-password"
+                  autoFocus
+                  required
+                />
+              </div>
+              <button type="submit" className="btn submit-btn">
+                login() <IconLock size={13} color="currentColor"/>
+              </button>
+              {adminLoginError && (
+                <div className="form-status error">{adminLoginError}</div>
+              )}
+            </form>
+          </div>
+        </div>
+      )}
+
+      {reviewModalOpen && (
+        <div className="review-modal-overlay" role="dialog" aria-modal="true" aria-labelledby="review-modal-title" onClick={closeReviewModal}>
+          <div className="review-modal" onClick={(e) => e.stopPropagation()}>
+            <button className="admin-login-close" type="button" onClick={closeReviewModal} aria-label="Close">x</button>
+            <span className="admin-login-kicker"><IconStar size={12} color="#00ff88"/> visitor_review</span>
+            <h2 id="review-modal-title">add_review</h2>
+            <form onSubmit={handleReviewSubmit} noValidate>
+              <div className="form-group">
+                <label htmlFor="review-name" className="visually-hidden">Name</label>
+                <input
+                  type="text"
+                  id="review-name"
+                  name="review-name"
+                  placeholder="// your_name"
+                  value={reviewForm.name}
+                  onChange={(e) => {
+                    setReviewForm((prev) => ({ ...prev, name: e.target.value }));
+                    setReviewStatus({ type: '', message: '' });
+                  }}
+                  autoComplete="name"
+                  required
+                />
+              </div>
+              <div className="review-rating-field" aria-label="Rating">
+                {[1, 2, 3, 4, 5].map((rating) => (
+                  <button
+                    key={rating}
+                    type="button"
+                    className={`review-star-button${rating <= Number(reviewForm.rating) ? ' active' : ''}`}
+                    onClick={() => {
+                      setReviewForm((prev) => ({ ...prev, rating }));
+                      setReviewStatus({ type: '', message: '' });
+                    }}
+                    aria-label={`${rating} star${rating > 1 ? 's' : ''}`}
+                  >
+                    ★
+                  </button>
+                ))}
+              </div>
+              <div className="form-group">
+                <label htmlFor="review-comment" className="visually-hidden">Review comment</label>
+                <textarea
+                  id="review-comment"
+                  name="review-comment"
+                  rows="4"
+                  placeholder="// your_review"
+                  value={reviewForm.comment}
+                  onChange={(e) => {
+                    setReviewForm((prev) => ({ ...prev, comment: e.target.value }));
+                    setReviewStatus({ type: '', message: '' });
+                  }}
+                  required
+                />
+              </div>
+              <button type="submit" className="btn submit-btn" disabled={reviewSubmitting}>
+                {reviewSubmitting
+                  ? <><IconSpinner size={15} color="currentColor"/> submitting...</>
+                  : <>submit_review() <IconStar size={13} color="currentColor"/></>
+                }
+              </button>
+              {reviewStatus.message && (
+                <div className={`form-status ${reviewStatus.type}`}>{reviewStatus.message}</div>
+              )}
+            </form>
+          </div>
+        </div>
+      )}
 
       <button className="scroll-top" aria-label="Scroll to top" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
         <IconChevronUp size={16} color="#00ff88"/>
