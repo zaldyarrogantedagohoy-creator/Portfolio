@@ -5,6 +5,7 @@ import '../styles/AdminPage.css';
 
 const ADMIN_SESSION_KEY = 'portfolio-admin-authenticated';
 const ADMIN_PASSCODE = import.meta.env.VITE_ADMIN_PASSCODE || 'ZeilDhagz_0008';
+const PDF_ACCESS_EMAIL_ENDPOINT = '/api/send-pdf-access-email';
 const REVIEW_SETUP_MESSAGE = 'Review table missing. Run supabase/site_reviews.sql in Supabase SQL Editor, then reload the app.';
 const isMissingReviewTableError = (error) => {
   const message = error?.message || '';
@@ -32,6 +33,48 @@ const sortByNewest = (records) =>
     if (!dateA || !dateB) return 0;
     return new Date(dateB) - new Date(dateA);
   });
+
+const sendPdfAccessApprovalEmail = async (request) => {
+  const response = await fetch(PDF_ACCESS_EMAIL_ENDPOINT, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      adminPasscode: ADMIN_PASSCODE,
+      request: {
+        id: request.id,
+        requesterName: request.requester_name,
+        requesterEmail: request.requester_email,
+        fileName: request.file_name,
+        fileUrl: request.file_url,
+        fileType: request.file_type || 'PDF',
+      },
+    }),
+  });
+
+  const responseText = await response.text();
+  const contentType = response.headers.get('content-type') || '';
+  let payload = {};
+
+  if (contentType.includes('application/json')) {
+    payload = responseText ? JSON.parse(responseText) : {};
+  } else {
+    throw new Error(
+      'Email API route was not reached. Use Vercel/`vercel dev` or add a backend email function for this host.',
+    );
+  }
+
+  if (!response.ok) {
+    throw new Error(payload.message || 'Approval email failed.');
+  }
+
+  if (payload.message !== 'Approval email sent.') {
+    throw new Error(payload.message || 'Email API did not confirm delivery request.');
+  }
+
+  return payload;
+};
 
 const IconChevronUp = ({ size = 16, color = 'currentColor' }) => (
   <svg width={size} height={size} viewBox="0 0 24 24" fill="none" aria-hidden="true">
@@ -215,7 +258,12 @@ const AdminPage = () => {
     setIsLoadingPdfRequests(false);
   }, []);
 
-  const updatePdfRequestStatus = async (requestId, nextStatus) => {
+  const updatePdfRequestStatus = async (request, nextStatus) => {
+    const requestRecord = typeof request === 'object'
+      ? request
+      : pdfRequests.find((item) => item.id === request);
+    const requestId = requestRecord?.id || request;
+
     if (!supabase || !requestId) return;
 
     setPdfRequestActionId(requestId);
@@ -227,6 +275,9 @@ const AdminPage = () => {
       admin_passcode: ADMIN_PASSCODE,
     });
 
+    let statusUpdated = false;
+    let actionMessage = `PDF request marked ${nextStatus}.`;
+
     if (error && error.code === 'PGRST202') {
       const fallback = await supabase
         .from('pdf_access_requests')
@@ -235,12 +286,26 @@ const AdminPage = () => {
       if (fallback.error) {
         setPdfRequestStatus(`ERROR: ${fallback.error.message}`);
       } else {
-        await fetchPdfRequests();
+        statusUpdated = true;
       }
     } else if (error) {
       setPdfRequestStatus(`ERROR: ${error.message}`);
     } else {
+      statusUpdated = true;
+    }
+
+    if (statusUpdated && nextStatus === 'approved' && requestRecord) {
+      try {
+        const emailResult = await sendPdfAccessApprovalEmail(requestRecord);
+        actionMessage = `Request approved and email sent to ${emailResult.to || requestRecord.requester_email}.`;
+      } catch (emailError) {
+        actionMessage = `Request approved, but email was not sent: ${emailError.message}`;
+      }
+    }
+
+    if (statusUpdated) {
       await fetchPdfRequests();
+      setPdfRequestStatus(actionMessage);
     }
 
     setPdfRequestActionId(null);
@@ -509,7 +574,7 @@ const AdminPage = () => {
                     <button
                       type="button"
                       className="admin-btn admin-btn-small"
-                      onClick={() => updatePdfRequestStatus(request.id, 'approved')}
+                      onClick={() => updatePdfRequestStatus(request, 'approved')}
                       disabled={pdfRequestActionId === request.id || request.status === 'approved'}
                     >
                       approve()
@@ -517,7 +582,7 @@ const AdminPage = () => {
                     <button
                       type="button"
                       className="admin-btn admin-btn-small admin-btn-muted"
-                      onClick={() => updatePdfRequestStatus(request.id, 'rejected')}
+                      onClick={() => updatePdfRequestStatus(request, 'rejected')}
                       disabled={pdfRequestActionId === request.id || request.status === 'rejected'}
                     >
                       reject()
