@@ -19,6 +19,23 @@ const sendJson = (response, status, payload) => {
   response.end(JSON.stringify(payload));
 };
 
+const getEmailConfigStatus = () => ({
+  resendApiKey: Boolean(clean(process.env.RESEND_API_KEY)),
+  emailFrom: Boolean(clean(process.env.EMAIL_FROM)),
+  emailReplyTo: Boolean(clean(process.env.EMAIL_REPLY_TO)),
+  adminPasscode: Boolean(clean(process.env.ADMIN_PASSCODE || process.env.VITE_ADMIN_PASSCODE)),
+  siteUrl: Boolean(clean(process.env.SITE_URL || process.env.PUBLIC_SITE_URL)),
+});
+
+const getProviderErrorMessage = (payload) => {
+  if (!payload) return '';
+  if (typeof payload.message === 'string') return payload.message;
+  if (typeof payload.error === 'string') return payload.error;
+  if (payload.error && typeof payload.error.message === 'string') return payload.error.message;
+  if (payload.message && typeof payload.message.message === 'string') return payload.message.message;
+  return '';
+};
+
 const readJsonBody = async (request) => {
   if (request.body && typeof request.body === 'object') return request.body;
   if (typeof request.body === 'string') {
@@ -100,8 +117,16 @@ const buildEmail = ({ requesterName, fileName, fileUrl, siteOrigin }) => {
 export default async function handler(request, response) {
   if (request.method === 'OPTIONS') {
     response.statusCode = 204;
-    response.setHeader('Allow', 'POST, OPTIONS');
+    response.setHeader('Allow', 'GET, POST, OPTIONS');
     response.end();
+    return;
+  }
+
+  if (request.method === 'GET') {
+    sendJson(response, 200, {
+      message: 'PDF approval email API is reachable.',
+      config: getEmailConfigStatus(),
+    });
     return;
   }
 
@@ -176,23 +201,30 @@ export default async function handler(request, response) {
     emailPayload.reply_to = replyTo;
   }
 
-  const resendResponse = await fetch('https://api.resend.com/emails', {
-    method: 'POST',
-    headers: {
-      Authorization: `Bearer ${resendApiKey}`,
-      'Content-Type': 'application/json',
-      ...(requestId ? { 'Idempotency-Key': `pdf-access-approved-${requestId}` } : {}),
-    },
-    body: JSON.stringify(emailPayload),
-  });
+  let resendResponse;
+  try {
+    resendResponse = await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${resendApiKey}`,
+        'Content-Type': 'application/json',
+        ...(requestId ? { 'Idempotency-Key': `pdf-access-approved-${requestId}` } : {}),
+      },
+      body: JSON.stringify(emailPayload),
+    });
+  } catch (error) {
+    sendJson(response, 502, {
+      message: `Could not reach Resend email service: ${error?.message || 'network request failed'}`,
+    });
+    return;
+  }
 
   const resendResult = await resendResponse.json().catch(() => ({}));
 
   if (!resendResponse.ok) {
     sendJson(response, 502, {
       message:
-        resendResult?.message ||
-        resendResult?.error ||
+        getProviderErrorMessage(resendResult) ||
         'Email provider rejected the approval email.',
     });
     return;

@@ -94,11 +94,14 @@ const AdminPage = () => {
   const [reviewStatus, setReviewStatus] = useState('');
   const [reviewsSyncedAt, setReviewsSyncedAt] = useState(null);
   const [reviewActionId, setReviewActionId] = useState(null);
+  const [reviewDeletingId, setReviewDeletingId] = useState(null);
   const [pdfRequests, setPdfRequests] = useState([]);
   const [isLoadingPdfRequests, setIsLoadingPdfRequests] = useState(false);
   const [pdfRequestStatus, setPdfRequestStatus] = useState('');
   const [pdfRequestsSyncedAt, setPdfRequestsSyncedAt] = useState(null);
   const [pdfRequestActionId, setPdfRequestActionId] = useState(null);
+  const [messageDeletingId, setMessageDeletingId] = useState(null);
+  const [pdfRequestDeletingId, setPdfRequestDeletingId] = useState(null);
 
   useEffect(() => {
     const hasAdminAccess = window.sessionStorage.getItem(ADMIN_SESSION_KEY) === 'true';
@@ -218,6 +221,30 @@ const AdminPage = () => {
     setReviewActionId(null);
   };
 
+  const deleteReview = async (reviewId) => {
+    if (!supabase || !reviewId) return;
+    if (!window.confirm('Delete this review permanently?')) return;
+
+    setReviewDeletingId(reviewId);
+    setReviewStatus('');
+
+    try {
+      const { error } = await supabase.rpc('delete_site_review_for_admin', {
+        admin_passcode: ADMIN_PASSCODE,
+        review_id: reviewId,
+      });
+
+      if (error) {
+        setReviewStatus(`ERROR: ${error.message}`);
+      } else {
+        await fetchReviews();
+        setReviewStatus('Review deleted successfully.');
+      }
+    } finally {
+      setReviewDeletingId(null);
+    }
+  };
+
   const fetchPdfRequests = useCallback(async () => {
     if (!supabase) {
       setPdfRequestStatus('Supabase env missing: add VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY.');
@@ -309,6 +336,54 @@ const AdminPage = () => {
     }
 
     setPdfRequestActionId(null);
+  };
+
+  const deleteMessage = async (messageId) => {
+    if (!supabase || !messageId) return;
+    if (!window.confirm('Delete this message permanently?')) return;
+
+    setMessageDeletingId(messageId);
+    setMessageStatus('');
+
+    try {
+      const { error } = await supabase.rpc('delete_contact_message_for_admin', {
+        admin_passcode: ADMIN_PASSCODE,
+        message_id: messageId,
+      });
+
+      if (error) {
+        setMessageStatus(`ERROR: ${error.message}`);
+      } else {
+        await fetchMessages();
+        setMessageStatus('Message deleted successfully.');
+      }
+    } finally {
+      setMessageDeletingId(null);
+    }
+  };
+
+  const deletePdfRequest = async (requestId) => {
+    if (!supabase || !requestId) return;
+    if (!window.confirm('Delete this PDF access request permanently?')) return;
+
+    setPdfRequestDeletingId(requestId);
+    setPdfRequestStatus('');
+
+    try {
+      const { error } = await supabase.rpc('delete_pdf_access_request_for_admin', {
+        request_id: requestId,
+        admin_passcode: ADMIN_PASSCODE,
+      });
+
+      if (error) {
+        setPdfRequestStatus(`ERROR: ${error.message}`);
+      } else {
+        await fetchPdfRequests();
+        setPdfRequestStatus('PDF access request deleted successfully.');
+      }
+    } finally {
+      setPdfRequestDeletingId(null);
+    }
   };
 
   useEffect(() => {
@@ -465,9 +540,19 @@ const AdminPage = () => {
                   <span>{formatDate(getMessageDate(message))}</span>
                 </div>
                 <p>{message.message}</p>
-                <span className={`admin-message-status ${message.status || 'pending'}`}>
-                  {message.status || 'pending'}
-                </span>
+                <div className="admin-message-footer">
+                  <span className={`admin-message-status ${message.status || 'pending'}`}>
+                    {message.status || 'pending'}
+                  </span>
+                  <button
+                    type="button"
+                    className="admin-btn admin-btn-small admin-btn-danger"
+                    onClick={() => deleteMessage(message.id)}
+                    disabled={messageDeletingId === message.id}
+                  >
+                    {messageDeletingId === message.id ? 'deleting...' : 'delete()'}
+                  </button>
+                </div>
               </article>
             ))
           )}
@@ -524,6 +609,14 @@ const AdminPage = () => {
                       disabled={reviewActionId === review.id || review.status === 'rejected'}
                     >
                       hide()
+                    </button>
+                    <button
+                      type="button"
+                      className="admin-btn admin-btn-small admin-btn-danger"
+                      onClick={() => deleteReview(review.id)}
+                      disabled={reviewDeletingId === review.id}
+                    >
+                      {reviewDeletingId === review.id ? 'deleting...' : 'delete()'}
                     </button>
                   </div>
                 </div>
@@ -586,6 +679,14 @@ const AdminPage = () => {
                       disabled={pdfRequestActionId === request.id || request.status === 'rejected'}
                     >
                       reject()
+                    </button>
+                    <button
+                      type="button"
+                      className="admin-btn admin-btn-small admin-btn-danger"
+                      onClick={() => deletePdfRequest(request.id)}
+                      disabled={pdfRequestDeletingId === request.id}
+                    >
+                      {pdfRequestDeletingId === request.id ? 'deleting...' : 'delete()'}
                     </button>
                   </div>
                 </div>

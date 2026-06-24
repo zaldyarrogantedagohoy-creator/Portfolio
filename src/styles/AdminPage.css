@@ -283,6 +283,29 @@ body {
   letter-spacing: 0.08em;
 }
 
+.admin-message-footer {
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+  align-items: flex-end;
+}
+
+.admin-btn-danger {
+  border-color: rgba(255,71,87,0.8);
+  color: var(--admin-red);
+}
+
+.admin-btn-danger:hover,
+.admin-btn-danger:focus-visible {
+  background: var(--admin-red);
+  color: var(--admin-bg);
+  box-shadow: 0 0 18px rgba(255,71,87,0.24);
+}
+
+.admin-btn-danger:disabled {
+  border-color: rgba(255,71,87,0.35);
+}
+
 .admin-message-status.approved {
   color: var(--admin-cyan);
   border-color: rgba(0,229,255,0.28);

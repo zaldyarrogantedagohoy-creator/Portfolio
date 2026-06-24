@@ -29,4 +29,6 @@ The request status is still updated even if email is not configured; the admin d
 
 Use Vercel or `vercel dev` when testing approval emails. Plain `npm run dev`, Firebase Hosting, GitHub Pages, or any static-only deploy will not run `api/send-pdf-access-email.js`, so no email can be sent from that route.
 
+To diagnose delivery setup, open `https://your-site.vercel.app/api/send-pdf-access-email` in the browser. It should return JSON with `message: "PDF approval email API is reachable."` and `config.resendApiKey`, `config.emailFrom`, and `config.adminPasscode` should all be `true`.
+
 Note: this is a static-site admin screen, so the anon key is used in the browser. For private production inboxes, move admin reads behind Supabase Auth, an Edge Function, or your backend.

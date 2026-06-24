@@ -85,8 +85,27 @@ as $$
   from public.contact_messages
   order by created_at desc nulls last;
 $$;
+create or replace function public.delete_contact_message_for_admin(
+  admin_passcode text,
+  message_id text
+)
+returns void
+language plpgsql
+security definer
+set search_path = public
+as $$
+begin
+  if admin_passcode <> 'ZeilDhagz_0008' then
+    raise exception 'Invalid admin passcode';
+  end if;
 
+  delete from public.contact_messages
+  where id::text = message_id::text;
+end;
+$$;
 grant execute on function public.get_contact_messages_for_admin() to anon;
 grant execute on function public.get_contact_messages_for_admin() to authenticated;
+grant execute on function public.delete_contact_message_for_admin(text, text) to anon;
+grant execute on function public.delete_contact_message_for_admin(text, text) to authenticated;
 
 notify pgrst, 'reload schema';

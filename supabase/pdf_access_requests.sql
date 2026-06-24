@@ -218,4 +218,30 @@ grant execute on function public.get_pdf_access_requests_for_admin(text) to auth
 grant execute on function public.set_pdf_access_request_status(uuid, text, text) to anon;
 grant execute on function public.set_pdf_access_request_status(uuid, text, text) to authenticated;
 
+create or replace function public.delete_pdf_access_request_for_admin(
+  admin_passcode text,
+  request_id text
+)
+returns void
+language plpgsql
+security definer
+set search_path = public
+as $$
+begin
+  if admin_passcode <> 'ZeilDhagz_0008' then
+    raise exception 'Invalid admin passcode';
+  end if;
+
+  delete from public.pdf_access_requests
+  where id::text = request_id::text;
+end;
+$$;
+
+grant execute on function public.delete_pdf_access_request_for_admin(text, uuid) to anon;
+grant execute on function public.delete_pdf_access_request_for_admin(text, uuid) to authenticated;
+grant execute on function public.delete_pdf_access_request_for_admin(uuid, text) to anon;
+grant execute on function public.delete_pdf_access_request_for_admin(uuid, text) to authenticated;
+grant execute on function public.delete_pdf_access_request_for_admin(text, text) to anon;
+grant execute on function public.delete_pdf_access_request_for_admin(text, text) to authenticated;
+
 notify pgrst, 'reload schema';
