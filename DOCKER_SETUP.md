@@ -26,7 +26,7 @@ DB_USER=postgres
 DB_PASSWORD=your_password_here
 DB_NAME=portfolio_db
 RUST_LOG=info
-VITE_API_URL=http://localhost:8080
+VITE_API_URL=https://iybendtdgpuvkgcqwken.supabase.co
 ```
 
 ### 2. Build Images
@@ -49,9 +49,9 @@ This will:
 
 ### 4. Access Services
 
-- **Frontend**: http://localhost:5173
-- **Backend API**: http://localhost:8080
-- **Database**: localhost:5432
+- **Frontend**: https://portfolio-one-sigma-11.vercel.app/
+- **Backend API**: https://iybendtdgpuvkgcqwken.supabase.co
+- **Database**: localhost:5432 (for local development)
 
 ## Common Commands
 
