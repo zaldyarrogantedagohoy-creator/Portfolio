@@ -1,3 +1,5 @@
+import { getSmtpConfigStatus, getSmtpConfigError, sendEmail } from './email-smtp.js';
+
 const DEFAULT_ADMIN_PASSCODE = 'ZeilDhagz_0008';
 
 const clean = (value) => String(value || '').trim();
@@ -20,7 +22,7 @@ const sendJson = (response, status, payload) => {
 };
 
 const getEmailConfigStatus = () => ({
-  resendApiKey: Boolean(clean(process.env.RESEND_API_KEY)),
+  ...getSmtpConfigStatus(),
   emailFrom: Boolean(clean(process.env.EMAIL_FROM)),
   emailReplyTo: Boolean(clean(process.env.EMAIL_REPLY_TO)),
   adminPasscode: Boolean(clean(process.env.ADMIN_PASSCODE || process.env.VITE_ADMIN_PASSCODE)),
@@ -171,13 +173,20 @@ export default async function handler(request, response) {
     return;
   }
 
-  const resendApiKey = clean(process.env.RESEND_API_KEY);
+  const smtpError = getSmtpConfigError();
   const emailFrom = clean(process.env.EMAIL_FROM);
   const replyTo = clean(process.env.EMAIL_REPLY_TO);
 
-  if (!resendApiKey || !emailFrom) {
+  if (smtpError) {
     sendJson(response, 503, {
-      message: 'Email service is not configured. Add RESEND_API_KEY and EMAIL_FROM in Vercel.',
+      message: smtpError,
+    });
+    return;
+  }
+
+  if (!emailFrom) {
+    sendJson(response, 503, {
+      message: 'Email service is not configured. Add EMAIL_FROM in Vercel or .env.',
     });
     return;
   }
@@ -189,50 +198,24 @@ export default async function handler(request, response) {
     siteOrigin,
   });
 
-  const emailPayload = {
-    from: emailFrom,
-    to: [requesterEmail],
-    subject: `PDF access approved: ${fileName}`,
-    html,
-    text,
-  };
-
-  if (replyTo) {
-    emailPayload.reply_to = replyTo;
-  }
-
-  let resendResponse;
   try {
-    resendResponse = await fetch('https://api.resend.com/emails', {
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${resendApiKey}`,
-        'Content-Type': 'application/json',
-        ...(requestId ? { 'Idempotency-Key': `pdf-access-approved-${requestId}` } : {}),
-      },
-      body: JSON.stringify(emailPayload),
+    const result = await sendEmail({
+      to: [requesterEmail],
+      subject: `PDF access approved: ${fileName}`,
+      html,
+      text,
+      replyTo: replyTo || undefined,
+    });
+
+    sendJson(response, 200, {
+      message: 'Approval email sent.',
+      emailId: result?.messageId || null,
+      to: requesterEmail,
     });
   } catch (error) {
     sendJson(response, 502, {
-      message: `Could not reach Resend email service: ${error?.message || 'network request failed'}`,
+      message: `Could not send approval email: ${error?.message || 'SMTP request failed'}`,
     });
-    return;
   }
 
-  const resendResult = await resendResponse.json().catch(() => ({}));
-
-  if (!resendResponse.ok) {
-    sendJson(response, 502, {
-      message:
-        getProviderErrorMessage(resendResult) ||
-        'Email provider rejected the approval email.',
-    });
-    return;
-  }
-
-  sendJson(response, 200, {
-    message: 'Approval email sent.',
-    emailId: resendResult?.id || null,
-    to: requesterEmail,
-  });
 }

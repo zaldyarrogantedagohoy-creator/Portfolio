@@ -218,9 +218,12 @@ grant execute on function public.get_pdf_access_requests_for_admin(text) to auth
 grant execute on function public.set_pdf_access_request_status(uuid, text, text) to anon;
 grant execute on function public.set_pdf_access_request_status(uuid, text, text) to authenticated;
 
+drop function if exists public.delete_pdf_access_request_for_admin(text, text);
+drop function if exists public.delete_pdf_access_request_for_admin(uuid, text);
+
 create or replace function public.delete_pdf_access_request_for_admin(
   admin_passcode text,
-  request_id text
+  request_id uuid
 )
 returns void
 language plpgsql
@@ -233,15 +236,11 @@ begin
   end if;
 
   delete from public.pdf_access_requests
-  where id::text = request_id::text;
+  where id = request_id;
 end;
 $$;
 
 grant execute on function public.delete_pdf_access_request_for_admin(text, uuid) to anon;
 grant execute on function public.delete_pdf_access_request_for_admin(text, uuid) to authenticated;
-grant execute on function public.delete_pdf_access_request_for_admin(uuid, text) to anon;
-grant execute on function public.delete_pdf_access_request_for_admin(uuid, text) to authenticated;
-grant execute on function public.delete_pdf_access_request_for_admin(text, text) to anon;
-grant execute on function public.delete_pdf_access_request_for_admin(text, text) to authenticated;
 
 notify pgrst, 'reload schema';

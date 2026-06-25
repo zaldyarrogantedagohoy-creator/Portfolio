@@ -22,7 +22,7 @@ const SOCIAL_LINKS = {
   dribbble: 'https://dribbble.com/zaldy-dagohoy',
 };
 const ADMIN_SESSION_KEY = 'portfolio-admin-authenticated';
-const ADMIN_PASSCODE = import.meta.env.VITE_ADMIN_PASSCODE || 'ZeilDhagz_0008';
+const ADMIN_OTP_EMAIL_ENDPOINT = '/api/send-admin-otp-email';
 const REVIEW_SETUP_MESSAGE = 'ERROR: Review table missing. Run supabase/site_reviews.sql in Supabase SQL Editor, then reload the app.';
 const PDF_PREVIEW_PAGE_LIMIT = 2;
 const PDF_ACCESS_FORM_INITIAL = {
@@ -1369,8 +1369,11 @@ const HomePage = () => {
   const [viewerFile, setViewerFile] = useState(null);
   const [viewerOpen, setViewerOpen] = useState(false);
   const [adminLoginOpen, setAdminLoginOpen] = useState(false);
-  const [adminPasscode, setAdminPasscode] = useState('');
+  const [adminEmail, setAdminEmail] = useState('');
+  const [adminOtp, setAdminOtp] = useState('');
   const [adminLoginError, setAdminLoginError] = useState('');
+  const [adminLoginStep, setAdminLoginStep] = useState('email');
+  const [adminIsLoggingIn, setAdminIsLoggingIn] = useState(false);
   const [approvedReviews, setApprovedReviews] = useState([]);
   const [reviewsLoading, setReviewsLoading] = useState(false);
   const [reviewModalOpen, setReviewModalOpen] = useState(false);
@@ -1386,13 +1389,17 @@ const HomePage = () => {
   const closeFileViewer = () => { setViewerOpen(false); setViewerFile(null); };
   const openAdminLogin = () => {
     setAdminLoginError('');
-    setAdminPasscode('');
+    setAdminEmail('');
+    setAdminOtp('');
+    setAdminLoginStep('email');
     setAdminLoginOpen(true);
   };
   const closeAdminLogin = () => {
     setAdminLoginOpen(false);
     setAdminLoginError('');
-    setAdminPasscode('');
+    setAdminEmail('');
+    setAdminOtp('');
+    setAdminLoginStep('email');
   };
   const openReviewModal = () => {
     setReviewStatus({ type: '', message: '' });
@@ -1519,15 +1526,92 @@ const HomePage = () => {
     }
   };
 
-  const handleAdminLoginSubmit = (e) => {
+  const handleAdminEmailSubmit = async (e) => {
     e.preventDefault();
-    if (adminPasscode.trim() !== ADMIN_PASSCODE) {
-      setAdminLoginError('ERROR: Invalid admin passcode.');
+    if (!supabase) {
+      setAdminLoginError('ERROR: Supabase not configured.');
       return;
     }
 
-    window.sessionStorage.setItem(ADMIN_SESSION_KEY, 'true');
-    window.location.assign('/admin');
+    const email = adminEmail.trim();
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      setAdminLoginError('ERROR: Please enter a valid email address.');
+      return;
+    }
+
+    setAdminIsLoggingIn(true);
+    setAdminLoginError('');
+
+    try {
+      const response = await fetch(ADMIN_OTP_EMAIL_ENDPOINT, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ adminEmail: email }),
+      });
+
+      const responseText = await response.text();
+      const contentType = response.headers.get('content-type') || '';
+      let payload = {};
+
+      if (contentType.includes('application/json')) {
+        payload = responseText ? JSON.parse(responseText) : {};
+      } else {
+        throw new Error(
+          'Admin OTP email API was not reached. Use Vercel/`vercel dev` or deploy the API route before testing OTP email.',
+        );
+      }
+
+      if (!response.ok) {
+        throw new Error(payload.message || 'Unable to send admin OTP email.');
+      }
+
+      setAdminLoginError(payload.message || `OTP sent to ${email}. Check your Gmail inbox.`);
+      setAdminLoginStep('otp');
+    } catch (error) {
+      setAdminLoginError(`ERROR: ${error?.message || 'Unable to send admin OTP email.'}`);
+    } finally {
+      setAdminIsLoggingIn(false);
+    }
+  };
+
+  const handleAdminOtpSubmit = async (e) => {
+    e.preventDefault();
+    if (!supabase) {
+      setAdminLoginError('ERROR: Supabase not configured.');
+      return;
+    }
+
+    const email = adminEmail.trim();
+    const otp = adminOtp.trim();
+
+    if (!otp || otp.length !== 6) {
+      setAdminLoginError('ERROR: Please enter a valid 6-digit OTP.');
+      return;
+    }
+
+    setAdminIsLoggingIn(true);
+    setAdminLoginError('');
+
+    try {
+      const { error: verifyError } = await supabase.rpc('verify_admin_otp', {
+        admin_email: email,
+        otp_code: otp,
+      });
+
+      if (verifyError) {
+        throw new Error(verifyError.message);
+      }
+
+      window.sessionStorage.setItem(ADMIN_SESSION_KEY, 'true');
+      window.sessionStorage.setItem('admin-email', email);
+      window.location.assign('/admin');
+    } catch (error) {
+      setAdminLoginError(`ERROR: ${error?.message || 'Unable to verify OTP.'}`);
+    } finally {
+      setAdminIsLoggingIn(false);
+    }
   };
 
   const handleReviewSubmit = async (e) => {
@@ -2258,31 +2342,67 @@ const SkillCube = ({ skills }) => {
             <button className="admin-login-close" type="button" onClick={closeAdminLogin} aria-label="Close">x</button>
             <span className="admin-login-kicker"><IconLock size={12} color="#00ff88"/> restricted_area</span>
             <h2 id="admin-login-title">admin_login</h2>
-            <form onSubmit={handleAdminLoginSubmit} noValidate>
+            {adminLoginStep === 'email' ? (
+              <form onSubmit={handleAdminEmailSubmit} noValidate>
               <div className="form-group">
-                <label htmlFor="admin-passcode" className="visually-hidden">Admin passcode</label>
+                <label htmlFor="admin-email" className="visually-hidden">Admin email</label>
                 <input
-                  type="password"
-                  id="admin-passcode"
-                  name="admin-passcode"
-                  placeholder="// passcode"
-                  value={adminPasscode}
+                  type="email"
+                  id="admin-email"
+                  name="admin-email"
+                  placeholder="// your_admin_email@gmail.com"
+                  value={adminEmail}
                   onChange={(e) => {
-                    setAdminPasscode(e.target.value);
+                    setAdminEmail(e.target.value);
                     setAdminLoginError('');
                   }}
-                  autoComplete="current-password"
+                  autoComplete="email"
                   autoFocus
                   required
+                  disabled={adminIsLoggingIn}
                 />
               </div>
-              <button type="submit" className="btn submit-btn">
-                login() <IconLock size={13} color="currentColor"/>
-              </button>
-              {adminLoginError && (
-                <div className="form-status error">{adminLoginError}</div>
-              )}
+                <button type="submit" className="btn submit-btn" disabled={adminIsLoggingIn}>
+                  {adminIsLoggingIn ? 'sending_otp...' : 'send_otp()'} <IconLock size={13} color="currentColor"/>
+                </button>
+                {adminLoginError && (
+                  <div className={`form-status ${adminLoginError.includes('sent to') ? 'otp-sent' : 'error'}`}>{adminLoginError}</div>
+                )}
             </form>
+            ) : (
+              <form onSubmit={handleAdminOtpSubmit} noValidate>
+                <div className="form-group">
+                  <label htmlFor="admin-otp" className="visually-hidden">One-Time Password</label>
+                  <input
+                    type="text"
+                    id="admin-otp"
+                    name="admin-otp"
+                    placeholder="// 000000"
+                    value={adminOtp}
+                    onChange={(e) => {
+                      const val = e.target.value.replace(/\D/g, '').slice(0, 6);
+                      setAdminOtp(val);
+                      setAdminLoginError('');
+                    }}
+                    maxLength="6"
+                    autoComplete="one-time-code"
+                    autoFocus
+                    required
+                    disabled={adminIsLoggingIn}
+                  />
+                  <p className="form-hint">Enter the 6-digit code sent to {adminEmail}</p>
+                </div>
+                <button type="submit" className="btn submit-btn" disabled={adminIsLoggingIn || adminOtp.length !== 6}>
+                  {adminIsLoggingIn ? 'verifying...' : 'verify_otp()'} <IconLock size={13} color="currentColor"/>
+                </button>
+                <button type="button" className="btn submit-btn admin-btn-secondary" onClick={() => { setAdminLoginStep('email'); setAdminOtp(''); }} disabled={adminIsLoggingIn}>
+                  back_to_email()
+                </button>
+                {adminLoginError && (
+                  <div className="form-status error">{adminLoginError}</div>
+                )}
+              </form>
+            )}
           </div>
         </div>
       )}

@@ -105,7 +105,8 @@ const AdminPage = () => {
 
   useEffect(() => {
     const hasAdminAccess = window.sessionStorage.getItem(ADMIN_SESSION_KEY) === 'true';
-    setIsAuthorized(hasAdminAccess);
+    const adminEmail = window.sessionStorage.getItem('admin-email');
+    setIsAuthorized(hasAdminAccess && !!adminEmail);
     setIsCheckingAccess(false);
   }, []);
 

@@ -2262,6 +2262,9 @@ section { padding: 4rem 0; }
 .submit-btn { width: 100%; justify-content: center; }
 .form-status { margin-top: 1rem; font-size: 0.82rem; font-weight: 500; padding: 0.5rem 0.75rem; border: 1px solid; }
 .form-status.success { color: var(--green); background: rgba(0,255,136,0.06); border-color: var(--border-hi); }
+.form-status.otp-sent,
+.form-status.otp-sent.error,
+.form-status.error.otp-sent { color: #2563eb !important; background: rgba(59,130,246,0.12) !important; border-color: rgba(59,130,246,0.65) !important; box-shadow: 0 0 0 1px rgba(59,130,246,0.14) inset !important; }
 .form-status.error   { color: var(--red);   background: rgba(255,71,87,0.06);  border-color: rgba(255,71,87,0.3); }
 .privacy-note { font-size: 0.7rem; margin-top: 1rem; color: var(--text-dim); display: flex; align-items: center; gap: 0.4rem; }
 .privacy-note svg { flex-shrink: 0; }
@@ -2379,6 +2382,28 @@ footer { border-top: 1px solid var(--border); padding-top: 2rem; }
   letter-spacing: 0;
 }
 .admin-login-modal h2::before { content: '// '; color: var(--text-dim); font-weight: 400; }
+
+.form-hint {
+  margin: 0.5rem 0 0;
+  color: var(--text-dim);
+  font-size: 0.72rem;
+  line-height: 1.4;
+}
+
+.admin-btn-secondary {
+  border-color: var(--border) !important;
+  color: var(--text-dim) !important;
+}
+.admin-btn-secondary:hover,
+.admin-btn-secondary:focus-visible {
+  background: transparent !important;
+  border-color: var(--border-hi) !important;
+  color: var(--text) !important;
+  box-shadow: none !important;
+}
+.admin-btn-secondary:disabled {
+  opacity: 0.35;
+}
 
 .review-modal-overlay {
   position: fixed;
