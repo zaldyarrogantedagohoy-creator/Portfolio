@@ -1169,7 +1169,7 @@ const HeroSlideshow = ({ children, scrollToSection, socialItems, stackIcons }) =
                     </button>
                   </div>
                   <div className="hero-stack">
-                    <span className="stack-label">workflow</span>
+                    <span className="stack-label">stacks</span>
                     {stackIcons.map((s, i) => (
                       <span key={i} className="stack-icon" title={s.title}>
                         <HexBg />
@@ -1741,15 +1741,11 @@ const HomePage = () => {
   ];
 
   const stackIcons = [
-    { comp: <IconFigma size={6} color="#00ff88"/>,    title: 'Figma'      },
     { comp: <IconJS size={6} color="#00ff88"/>,       title: 'JavaScript' },
     { comp: <IconReact size={6} color="#00ff88"/>,    title: 'React'      },
     { comp: <IconPython size={6} color="#00ff88"/>,   title: 'Python'     },
     { comp: <IconSupabase size={6} color="#00ff88"/>, title: 'Supabase'   },
     { comp: <IconRust size={6} color="#00ff88"/>,     title: 'Rust'       },
-    { comp: <IconGithub size={6} color="#00ff88"/>,   title: 'GitHub'     },
-    { comp: <IconRender size={6} color="#00ff88"/>,   title: 'Render'     },
-    { comp: <IconVercel size={6} color="#00ff88"/>,   title: 'Vercel'     },
   ];
 
   const socialItems = [
