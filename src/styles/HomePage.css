@@ -1195,6 +1195,19 @@ section { padding: 4rem 0; }
 .cert-card-6 { width: 33%; aspect-ratio: 1.41/1; bottom: 4%; left: 34%; transform: rotate(-3deg); z-index: 7; }
 .cert-card-6:hover { transform: rotate(-1deg) scale(1.05) translateY(-10px); }
 
+.cert-loading,
+.cert-empty {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: var(--text-dim);
+  font-size: 0.95rem;
+  font-family: var(--font-mono);
+  font-weight: 500;
+  z-index: 1;
+}
+
 .certificate-viewer { position: fixed; inset: 0; z-index: 1000; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.85); padding: 1.5rem; }
 .certificate-viewer-backdrop { position: absolute; inset: 0; }
 .certificate-viewer-content {

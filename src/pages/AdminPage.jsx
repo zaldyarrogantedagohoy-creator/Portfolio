@@ -102,6 +102,14 @@ const AdminPage = () => {
   const [pdfRequestActionId, setPdfRequestActionId] = useState(null);
   const [messageDeletingId, setMessageDeletingId] = useState(null);
   const [pdfRequestDeletingId, setPdfRequestDeletingId] = useState(null);
+  const [certificates, setCertificates] = useState([]);
+  const [isLoadingCertificates, setIsLoadingCertificates] = useState(false);
+  const [certificateStatus, setCertificateStatus] = useState('');
+  const [certificatesSyncedAt, setCertificatesSyncedAt] = useState(null);
+  const [certificateDeletingId, setCertificateDeletingId] = useState(null);
+  const [newCertificateTitle, setNewCertificateTitle] = useState('');
+  const [newCertificateImageUrl, setNewCertificateImageUrl] = useState('');
+  const [isAddingCertificate, setIsAddingCertificate] = useState(false);
 
   useEffect(() => {
     const hasAdminAccess = window.sessionStorage.getItem(ADMIN_SESSION_KEY) === 'true';
@@ -387,13 +395,98 @@ const AdminPage = () => {
     }
   };
 
+  const fetchCertificates = useCallback(async () => {
+    if (!supabase) {
+      setCertificateStatus('Supabase env missing: add VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY.');
+      return;
+    }
+
+    setIsLoadingCertificates(true);
+    setCertificateStatus('');
+
+    const { data, error } = await supabase
+      .from('certificates')
+      .select('*')
+      .order('display_order', { ascending: true });
+
+    if (error) {
+      setCertificateStatus(/certificates|schema cache|Could not find|function.*not found/i.test(error.message || '')
+        ? 'Certificates table missing. Run supabase/certificates.sql in Supabase SQL Editor, then reload the app.'
+        : `ERROR: ${error.message}`);
+    } else {
+      setCertificates(data || []);
+      setCertificateStatus(
+        (data || []).length
+          ? `Certificates synced: ${(data || []).length} total.`
+          : 'No certificates added yet.',
+      );
+      setCertificatesSyncedAt(new Date().toISOString());
+    }
+
+    setIsLoadingCertificates(false);
+  }, []);
+
+  const addCertificate = async (e) => {
+    e.preventDefault();
+    if (!supabase || !newCertificateTitle.trim() || !newCertificateImageUrl.trim()) return;
+
+    setIsAddingCertificate(true);
+    setCertificateStatus('');
+
+    const { error } = await supabase
+      .from('certificates')
+      .insert([
+        {
+          title: newCertificateTitle.trim(),
+          image_url: newCertificateImageUrl.trim(),
+          display_order: (certificates.length || 0) + 1,
+        },
+      ]);
+
+    if (error) {
+      setCertificateStatus(`ERROR: ${error.message}`);
+    } else {
+      setNewCertificateTitle('');
+      setNewCertificateImageUrl('');
+      await fetchCertificates();
+      setCertificateStatus('Certificate added successfully.');
+    }
+
+    setIsAddingCertificate(false);
+  };
+
+  const deleteCertificate = async (certificateId) => {
+    if (!supabase || !certificateId) return;
+    if (!window.confirm('Delete this certificate permanently?')) return;
+
+    setCertificateDeletingId(certificateId);
+    setCertificateStatus('');
+
+    try {
+      const { error } = await supabase
+        .from('certificates')
+        .delete()
+        .eq('id', certificateId);
+
+      if (error) {
+        setCertificateStatus(`ERROR: ${error.message}`);
+      } else {
+        await fetchCertificates();
+        setCertificateStatus('Certificate deleted successfully.');
+      }
+    } finally {
+      setCertificateDeletingId(null);
+    }
+  };
+
   useEffect(() => {
     if (isAuthorized) {
       fetchMessages();
       fetchReviews();
       fetchPdfRequests();
+      fetchCertificates();
     }
-  }, [fetchMessages, fetchReviews, fetchPdfRequests, isAuthorized]);
+  }, [fetchMessages, fetchReviews, fetchPdfRequests, fetchCertificates, isAuthorized]);
 
   useEffect(() => {
     if (!isAuthorized || !supabase) return undefined;
@@ -446,6 +539,23 @@ const AdminPage = () => {
     };
   }, [fetchPdfRequests, isAuthorized]);
 
+  useEffect(() => {
+    if (!isAuthorized || !supabase) return undefined;
+
+    const channel = supabase
+      .channel('admin-certificates')
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'certificates' },
+        () => fetchCertificates(),
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [fetchCertificates, isAuthorized]);
+
   const stats = useMemo(() => {
     const pending = messages.filter((message) => message.status === 'pending').length;
     const pendingReviews = reviews.filter((review) => review.status === 'pending').length;
@@ -455,8 +565,9 @@ const AdminPage = () => {
       { label: 'pending', value: pending },
       { label: 'review queue', value: pendingReviews },
       { label: 'pdf requests', value: pendingPdfRequests },
+      { label: 'certificates', value: certificates.length },
     ];
-  }, [messages, pdfRequests, reviews]);
+  }, [messages, pdfRequests, reviews, certificates]);
 
   const handleLogout = () => {
     window.sessionStorage.removeItem(ADMIN_SESSION_KEY);
@@ -690,6 +801,80 @@ const AdminPage = () => {
                       {pdfRequestDeletingId === request.id ? 'deleting...' : 'delete()'}
                     </button>
                   </div>
+                </div>
+              </article>
+            ))
+          )}
+        </div>
+      </section>
+
+      <section className="admin-panel">
+        <div className="admin-panel-header">
+          <div>
+            <span className="admin-kicker">$ certificates</span>
+            <h2>manage_portfolio</h2>
+            {certificatesSyncedAt && <p className="admin-sync-time">last_sync: {formatDate(certificatesSyncedAt)}</p>}
+          </div>
+          <button className="admin-btn" type="button" onClick={fetchCertificates} disabled={isLoadingCertificates}>
+            {isLoadingCertificates ? 'syncing...' : 'refresh()'}
+          </button>
+        </div>
+
+        {certificateStatus && <p className="admin-status">{certificateStatus}</p>}
+
+        <form className="admin-cert-form" onSubmit={addCertificate}>
+          <div className="admin-form-group">
+            <label htmlFor="cert-title">Certificate Title</label>
+            <input
+              id="cert-title"
+              type="text"
+              placeholder="e.g., Advanced React Certification"
+              value={newCertificateTitle}
+              onChange={(e) => setNewCertificateTitle(e.target.value)}
+              required
+            />
+          </div>
+          <div className="admin-form-group">
+            <label htmlFor="cert-image">Image URL (e.g., certificate-4.png)</label>
+            <input
+              id="cert-image"
+              type="text"
+              placeholder="e.g., certificate-4.png"
+              value={newCertificateImageUrl}
+              onChange={(e) => setNewCertificateImageUrl(e.target.value)}
+              required
+            />
+          </div>
+          <button
+            type="submit"
+            className="admin-btn"
+            disabled={isAddingCertificate || !newCertificateTitle.trim() || !newCertificateImageUrl.trim()}
+          >
+            {isAddingCertificate ? 'adding...' : 'add_certificate()'}
+          </button>
+        </form>
+
+        <div className="admin-message-list">
+          {certificates.length === 0 ? (
+            <div className="admin-empty-state">No certificates available.</div>
+          ) : (
+            certificates.map((certificate) => (
+              <article className="admin-message-card admin-cert-card" key={certificate.id}>
+                <div className="admin-message-meta">
+                  <strong>{certificate.title}</strong>
+                  <span>{certificate.image_url}</span>
+                  <span>Order: {certificate.display_order}</span>
+                  <span>{formatDate(certificate.created_at)}</span>
+                </div>
+                <div className="admin-message-footer">
+                  <button
+                    type="button"
+                    className="admin-btn admin-btn-small admin-btn-danger"
+                    onClick={() => deleteCertificate(certificate.id)}
+                    disabled={certificateDeletingId === certificate.id}
+                  >
+                    {certificateDeletingId === certificate.id ? 'deleting...' : 'delete()'}
+                  </button>
                 </div>
               </article>
             ))

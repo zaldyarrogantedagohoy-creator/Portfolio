@@ -417,6 +417,58 @@ body {
   transform: translateY(-2px);
 }
 
+/* ── CERTIFICATE FORM ── */
+.admin-cert-form {
+  display: grid;
+  grid-template-columns: 1fr 1fr auto;
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+  padding: 1rem;
+  border: 1px solid var(--admin-border);
+  background: rgba(11,17,24,0.5);
+  border-radius: 0.375rem;
+}
+
+.admin-form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.admin-form-group label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--admin-text-dim);
+}
+
+.admin-form-group input {
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--admin-border);
+  background: rgba(11,17,24,0.8);
+  color: var(--admin-text);
+  font-family: var(--admin-font);
+  font-size: 0.875rem;
+  border-radius: 0.25rem;
+  transition: border-color 0.15s, background-color 0.15s;
+}
+
+.admin-form-group input:focus {
+  outline: none;
+  border-color: var(--admin-green);
+  background: rgba(11,17,24,0.95);
+  box-shadow: 0 0 8px rgba(0,255,136,0.12);
+}
+
+.admin-cert-form > button {
+  align-self: flex-end;
+}
+
+.admin-cert-card {
+  grid-template-columns: auto 1fr;
+}
+
 @media (max-width: 820px) {
   .admin-page {
     padding-inline: 1rem;
@@ -444,6 +496,14 @@ body {
   .admin-review-controls,
   .admin-review-actions {
     justify-content: flex-start;
+  }
+
+  .admin-cert-form {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-cert-form > button {
+    align-self: flex-start;
   }
 
   .admin-scroll-top {

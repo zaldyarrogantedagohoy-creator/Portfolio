@@ -6,14 +6,12 @@ import '../styles/HomePage.css';
 
 import logoImg  from '../assets/images/logo.png';
 import zadImg   from '../assets/images/zad.png';
-import cert1Img from '../assets/images/certificate-1.png';
-import cert2Img from '../assets/images/certificate-2.png';
-import cert3Img from '../assets/images/certificate-3.png';
-import cert4Img from '../assets/images/certificate-4.png';
-import cert5Img from '../assets/images/certificate-5.png';
-import cert6Img from '../assets/images/certificate-6.png';
 import heroVid  from '../assets/Videos/Hero_Vid.mp4';
 import pikachuVid from '../assets/Videos/Pikachu.mp4';
+import certificate1Img from '../assets/images/certificate-1.png';
+import certificate2Img from '../assets/images/certificate-2.png';
+import certificate3Img from '../assets/images/certificate-3.png';
+import certificate4Img from '../assets/images/certificate-4.jpg';
 
 const SOCIAL_LINKS = {
   github:   'https://github.com/zaldyarrogantedagohoy-creator',
@@ -86,6 +84,13 @@ const designAssets     = buildAssets(import.meta.glob('../assets/Design/*.{png,j
 const researchAssets   = buildAssets(import.meta.glob('../assets/Research/*.{png,jpg,jpeg,pdf}',     { eager: true, query: '?url', import: 'default' }));
 const developmentAssets= buildAssets(import.meta.glob('../assets/Development/*.{png,jpg,jpeg,pdf}',  { eager: true, query: '?url', import: 'default' }));
 const folderAssets = { design: designAssets, research: researchAssets, development: developmentAssets };
+
+const fallbackCertificates = [
+  { id: 'certificate-1', title: 'Certificate 1', image_url: certificate1Img },
+  { id: 'certificate-2', title: 'Certificate 2', image_url: certificate2Img },
+  { id: 'certificate-3', title: 'Certificate 3', image_url: certificate3Img },
+  { id: 'certificate-4', title: 'Certificate 4', image_url: certificate4Img },
+];
 
 const IconReact = ({ size = 20, color = '#00ff88' }) => (
   <svg width={size} height={size} viewBox="0 0 24 24" fill="none" aria-hidden="true">
@@ -1306,6 +1311,8 @@ const HomePage = () => {
   const [showProjectModal, setShowProjectModal] = useState(false);
   const [countersVisible, setCountersVisible] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [certificates, setCertificates] = useState(fallbackCertificates);
+  const [certificatesLoading, setCertificatesLoading] = useState(false);
   const statsRef = useRef(null);
 
   const useCounter = (target, duration = 1800, active) => {
@@ -1335,6 +1342,52 @@ const HomePage = () => {
     return () => observer.disconnect();
   }, []);
 
+  useEffect(() => {
+    const fetchCertificates = async () => {
+      setCertificatesLoading(true);
+
+      if (!supabase) {
+        setCertificates(fallbackCertificates);
+        setCertificatesLoading(false);
+        return;
+      }
+
+      try {
+        const { data, error } = await supabase
+          .from('certificates')
+          .select('*')
+          .order('display_order', { ascending: true });
+
+        if (error) {
+          console.error('Error fetching certificates:', error);
+          setCertificates(fallbackCertificates);
+        } else {
+          setCertificates((data && data.length > 0) ? data : fallbackCertificates);
+        }
+      } catch (err) {
+        console.error('Unexpected error fetching certificates:', err);
+        setCertificates(fallbackCertificates);
+      } finally {
+        setCertificatesLoading(false);
+      }
+    };
+
+    fetchCertificates();
+
+    // Subscribe to real-time updates
+    const channel = supabase?.channel('certificates-realtime')
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'certificates' },
+        () => fetchCertificates(),
+      )
+      .subscribe();
+
+    return () => {
+      if (channel) supabase?.removeChannel(channel);
+    };
+  }, []);
+
   const skills = [
     { icon: 'fab fa-react',      label: 'React Interfaces',   category: 'Frontend',    description: 'Building reusable components, dynamic pages, and smooth user interactions.',         level: 'Advanced'     },
     { icon: 'fab fa-js',         label: 'JavaScript Logic',   category: 'Programming', description: 'Creating interactive features, form validation, and clean application behavior.',     level: 'Advanced'     },
@@ -1344,14 +1397,6 @@ const HomePage = () => {
     { icon: 'fas fa-code',       label: 'HTML & CSS Craft',   category: 'Development', description: 'Producing clean, polished interfaces with animations, shadows, and precise styling.', level: 'Advanced'     },
   ];
 
-  const certificateItems = [
-    { title: 'UX Design Certificate',                image: cert1Img },
-    { title: 'Frontend Development Certificate',     image: cert2Img },
-    { title: 'Analytics Certificate',                image: cert3Img },
-    { title: 'Interaction Design Certificate',       image: cert4Img },
-    { title: 'Performance Optimization Certificate', image: cert5Img },
-    { title: 'Product Strategy Certificate',         image: cert6Img },
-  ];
   const [selectedCertificate, setSelectedCertificate] = useState(null);
 
   const categoryProjects = {
@@ -2054,30 +2099,36 @@ const SkillCube = ({ skills }) => {
             <p className="cert-subtitle">Click any certificate to view it full-screen.</p>
           </div>
           <div className="cert-collage" aria-label="Certificate collage">
-            <span className="cert-chip cert-chip-1" aria-hidden="true"><IconAward size={12} color="#00ff88"/> Certified</span>
-            <span className="cert-chip cert-chip-2" aria-hidden="true"><IconStar size={12} color="#ffb700"/> Verified</span>
-            <span className="cert-chip cert-chip-3" aria-hidden="true"><i className="fas fa-medal"></i> Achieved</span>
-            {certificateItems.map((cert, index) => (
-              <div
-                key={`cert-${index}`}
-                className={`cert-card cert-card-${index + 1}`}
-                onClick={() => openCertificate(cert)}
-                role="button" tabIndex={0} aria-label={`View ${cert.title}`}
-                onKeyDown={(e) => e.key === 'Enter' && openCertificate(cert)}
-              >
-                <div className="cert-card-img-wrap">
-                  <img src={cert.image} alt={cert.title || `Certificate ${index + 1}`} />
-                  <div className="cert-card-hover-overlay">
-                    <i className="fas fa-expand-alt"></i>
-                    <span>{cert.title}</span>
+            {certificatesLoading ? (
+              <div className="cert-loading">loading_certificates...</div>
+            ) : certificates.length === 0 ? (
+              <div className="cert-empty">No certificates available.</div>
+            ) : (
+              certificates.map((cert, index) => {
+                const imageUrl = (() => {
+                  if (!cert?.image_url) return '';
+                  if (typeof cert.image_url === 'string' && cert.image_url.startsWith('http')) return cert.image_url;
+                  if (typeof cert.image_url === 'string' && cert.image_url.startsWith('/')) return cert.image_url;
+                  return cert.image_url;
+                })();
+                return (
+                  <div
+                    key={`cert-${cert.id || index}`}
+                    className={`cert-card cert-card-${index + 1}`}
+                    onClick={() => openCertificate({ title: cert.title, image: imageUrl })}
+                    role="button" tabIndex={0} aria-label={`View ${cert.title}`}
+                    onKeyDown={(e) => e.key === 'Enter' && openCertificate({ title: cert.title, image: imageUrl })}
+                  >
+                    <div className="cert-card-img-wrap">
+                      <img src={imageUrl} alt={cert.title || `Certificate ${index + 1}`} />
+                      <div className="cert-card-hover-overlay">
+                        <i className="fas fa-expand-alt"></i>
+                      </div>
+                    </div>
                   </div>
-                </div>
-                <div className="cert-card-label">
-                  <span className="cert-card-num">0{index + 1}</span>
-                  <span className="cert-card-title">{cert.title}</span>
-                </div>
-              </div>
-            ))}
+                );
+              })
+            )}
           </div>
         </section>
 
