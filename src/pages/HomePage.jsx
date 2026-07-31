@@ -615,7 +615,7 @@ const ProcessStep = ({ step, label, desc, index, iconComponent }) => {
   );
 };
 
-const PdfCanvasPage = ({ pdfDocument, pageNumber, fileName }) => {
+const PdfCanvasPage = ({ pdfDocument, pageNumber, fileName, showAccessPrompt, onRequestAccess, pdfRequesting, pdfRequestStatus }) => {
   const frameRef = useRef(null);
   const canvasRef = useRef(null);
   const [frameWidth, setFrameWidth] = useState(0);
@@ -725,6 +725,26 @@ const PdfCanvasPage = ({ pdfDocument, pageNumber, fileName }) => {
         aria-label={`${fileName || 'PDF document'} page ${pageNumber}`}
         onContextMenu={(e) => e.preventDefault()}
       />
+      {showAccessPrompt && (
+        <div className="pdf-page-access-overlay" aria-hidden="true">
+          <div className="pdf-page-access-veil" />
+          <div className="pdf-page-access-prompt">
+            <button
+              type="button"
+              className="pdf-unlock-request-btn"
+              onClick={onRequestAccess}
+              disabled={pdfRequesting}
+              aria-label="Request full PDF access"
+            >
+              <IconUnlock size={16} color="currentColor"/>
+              request_access()
+            </button>
+            {pdfRequestStatus.message && (
+              <div className={`pdf-request-status ${pdfRequestStatus.type}`}>{pdfRequestStatus.message}</div>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 };
@@ -914,37 +934,20 @@ const FileViewer = ({ file, onClose }) => {
                 )}
                 {pdfDocument && Array.from({ length: previewPageCount }, (_, index) => {
                   const page = index + 1;
+                  const showAccessPrompt = hasLockedPdfPages && page === previewPageCount && page >= 2;
                   return (
                     <PdfCanvasPage
                       key={`${file.src}-page-${page}`}
                       pdfDocument={pdfDocument}
                       pageNumber={page}
                       fileName={file.name}
+                      showAccessPrompt={showAccessPrompt}
+                      onRequestAccess={openPdfAccessModal}
+                      pdfRequesting={pdfRequesting}
+                      pdfRequestStatus={pdfRequestStatus}
                     />
                   );
                 })}
-                {hasLockedPdfPages && (
-                  <div className="pdf-locked-pages">
-                    <div className="pdf-locked-ghost" aria-hidden="true">
-                      <span></span><span></span><span></span>
-                    </div>
-                    <div className="pdf-locked-overlay">
-                      <button
-                        type="button"
-                        className="pdf-unlock-request-btn"
-                        onClick={openPdfAccessModal}
-                        disabled={pdfRequesting}
-                        aria-label="Request full PDF access"
-                      >
-                        <IconUnlock size={16} color="currentColor"/>
-                        request_access()
-                      </button>
-                      {pdfRequestStatus.message && (
-                        <div className={`pdf-request-status ${pdfRequestStatus.type}`}>{pdfRequestStatus.message}</div>
-                      )}
-                    </div>
-                  </div>
-                )}
               </div>
             )}
           </div>
