@@ -12,6 +12,7 @@ import certificate1Img from '../assets/images/certificate-1.png';
 import certificate2Img from '../assets/images/certificate-2.png';
 import certificate3Img from '../assets/images/certificate-3.png';
 import certificate4Img from '../assets/images/certificate-4.jpg';
+import certificate5Img from '../assets/images/certificate-5.png';
 
 const SOCIAL_LINKS = {
   github:   'https://github.com/zaldyarrogantedagohoy-creator',
@@ -90,6 +91,7 @@ const fallbackCertificates = [
   { id: 'certificate-2', title: 'Certificate 2', image_url: certificate2Img },
   { id: 'certificate-3', title: 'Certificate 3', image_url: certificate3Img },
   { id: 'certificate-4', title: 'Certificate 4', image_url: certificate4Img },
+  { id: 'certificate-5', title: 'Certificate 5', image_url: certificate5Img },
 ];
 
 const IconReact = ({ size = 20, color = '#00ff88' }) => (
@@ -1591,13 +1593,32 @@ const HomePage = () => {
     setAdminLoginError('');
 
     try {
-      const response = await fetch(ADMIN_OTP_EMAIL_ENDPOINT, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ adminEmail: email }),
-      });
+      const endpointUrl = typeof window !== 'undefined'
+        ? new URL(ADMIN_OTP_EMAIL_ENDPOINT, window.location.origin).href
+        : ADMIN_OTP_EMAIL_ENDPOINT;
+
+      let response;
+      try {
+        response = await fetch(endpointUrl, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ adminEmail: email }),
+          credentials: 'same-origin',
+          mode: 'same-origin',
+        });
+      } catch (firstError) {
+        response = await fetch(ADMIN_OTP_EMAIL_ENDPOINT, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ adminEmail: email }),
+          credentials: 'same-origin',
+          mode: 'same-origin',
+        });
+      }
 
       const responseText = await response.text();
       const contentType = response.headers.get('content-type') || '';

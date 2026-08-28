@@ -10,8 +10,8 @@ const apiRoutes = {
 
 const attachLocalApiRoutes = (server) => {
   server.middlewares.use(async (request, response, next) => {
-    const pathname = new URL(request.url || '/', 'http://localhost').pathname
-    const handler = apiRoutes[pathname]
+    const pathname = new URL(request.url || '/', 'http://localhost').pathname.replace(/\/+$/, '')
+    const handler = apiRoutes[pathname] || apiRoutes[`${pathname}/`]
 
     if (!handler) {
       next()
@@ -51,5 +51,8 @@ export default defineConfig(({ mode }) => {
   return {
     plugins: [localApiPlugin(), react()],
     base: '/',
+    server: {
+      host: '0.0.0.0',
+    },
   }
 })
