@@ -69,6 +69,7 @@ const getInitials = (name = '') =>
 const buildAssets = (entries) =>
   Object.entries(entries)
     .filter(([path]) => /\.(png|jpe?g|pdf)$/i.test(path))
+    .filter(([path]) => !/rotc_logo/i.test(path))
     .map(([path, src]) => {
       const name = assetFilename(path);
       return {
@@ -2046,7 +2047,7 @@ const SkillCube = ({ skills }) => {
             </div>
             <div className="about-card">
               <div className="about-card-avatar">
-                <img src={zadImg} alt="Zaldy Dagohoy" onError={(e) => { e.currentTarget.style.display='none'; }} />
+                <img className="about-card-avatar-img" src={zadImg} alt="Zaldy Dagohoy" onError={(e) => { e.currentTarget.style.display='none'; }} />
                 <div className="about-card-avatar-fallback" aria-hidden="true">ZD</div>
               </div>
               <h3>Zaldy Dagohoy</h3>
