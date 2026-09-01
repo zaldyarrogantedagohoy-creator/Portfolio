@@ -399,6 +399,46 @@ const IconPlay = ({ size = 48, color = 'currentColor' }) => (
   </svg>
 );
 
+// Service icons with neon style
+const IconResearch = ({ size = 32, color = '#00ff88' }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" aria-hidden="true">
+    <circle cx="8" cy="8" r="4" stroke={color} strokeWidth="1.2" fill={color} fillOpacity="0.1"/>
+    <path d="M12 8h6M12 12h5M12 16h4" stroke={color} strokeWidth="1.2" strokeLinecap="round"/>
+    <path d="M3 6h4v10H3zM18 6h3v10h-3z" stroke={color} strokeWidth="1.2" fill={color} fillOpacity="0.08"/>
+    <line x1="5" y1="20" x2="19" y2="20" stroke={color} strokeWidth="1.2"/>
+  </svg>
+);
+
+const IconOffice = ({ size = 32, color = '#00e5ff' }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" aria-hidden="true">
+    <rect x="3" y="3" width="18" height="18" rx="2" stroke={color} strokeWidth="1.2" fill={color} fillOpacity="0.08"/>
+    <path d="M3 8h18M8 3v18" stroke={color} strokeWidth="1.2"/>
+    <rect x="9" y="9" width="3" height="3" fill={color} fillOpacity="0.3"/>
+    <rect x="13" y="9" width="3" height="3" stroke={color} strokeWidth="1" fill="none"/>
+    <rect x="9" y="13" width="3" height="3" stroke={color} strokeWidth="1" fill="none"/>
+    <rect x="13" y="13" width="3" height="3" stroke={color} strokeWidth="1" fill="none"/>
+  </svg>
+);
+
+const IconVideo = ({ size = 32, color = '#ffb700' }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" aria-hidden="true">
+    <rect x="2" y="4" width="20" height="16" rx="2" stroke={color} strokeWidth="1.2" fill={color} fillOpacity="0.08"/>
+    <polygon points="10,10 10,18 17,14" fill={color} fillOpacity="0.4" stroke={color} strokeWidth="1"/>
+    <circle cx="18" cy="8" r="2" fill={color} fillOpacity="0.5"/>
+  </svg>
+);
+
+const IconWebDev = ({ size = 32, color = '#b464ff' }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" aria-hidden="true">
+    <rect x="2" y="4" width="20" height="16" rx="2" stroke={color} strokeWidth="1.2" fill={color} fillOpacity="0.08"/>
+    <polyline points="2,8 22,8" stroke={color} strokeWidth="1.2"/>
+    <circle cx="6" cy="6" r="1" fill={color}/>
+    <circle cx="10" cy="6" r="1" fill={color}/>
+    <circle cx="14" cy="6" r="1" fill={color}/>
+    <polyline points="4,11 8,15 12,11 16,15 20,11" stroke={color} strokeWidth="1.2" fill="none" strokeLinecap="round" strokeLinejoin="round"/>
+  </svg>
+);
+
 const HexBg = ({ color = 'rgba(0,255,136,0.35)' }) => (
   <svg style={{ position: 'absolute', inset: 0, width: '100%', height: '100%' }} viewBox="0 0 46 46" aria-hidden="true">
     <polygon style={{ fill: 'rgba(0,255,136,0.08)', transition: 'fill-opacity 0.2s' }} points="23,3 40,13 40,33 23,43 6,33 6,13" className="hex-fill"/>
@@ -1126,7 +1166,7 @@ const HeroSlideshow = ({ children, scrollToSection, socialItems, stackIcons }) =
     }
   }, [activeSlide]);
 
-  const slideLabels = ['01 · intro', '02 · reel', '03 · coming_soon'];
+  const slideLabels = ['01 · intro', '02 · reel', '03 · services'];
 
   return (
     <section id="home" className="hero-section">
@@ -1232,40 +1272,67 @@ const HeroSlideshow = ({ children, scrollToSection, socialItems, stackIcons }) =
             </div>
           )}
 
-          {/* ── SLIDE 3: Coming soon placeholder ── */}
+          {/* ── SLIDE 3: Services offered ── */}
           {activeSlide === 2 && (
-            <div className="hero-slide slide-coming-soon">
-              <div className="coming-soon-inner">
-                <div className="coming-soon-grid-bg" aria-hidden="true"></div>
-                <div className="coming-soon-orbs" aria-hidden="true">
-                  <span className="cs-orb cs-orb-1"></span>
-                  <span className="cs-orb cs-orb-2"></span>
-                </div>
-                <div className="coming-soon-content">
-                  <span className="coming-soon-kicker">
-                    <span className="blink-cursor">▋</span> slide_03.jsx
-                  </span>
-                  <h2 className="coming-soon-title">
-                    <span className="cs-line cs-line-1">something</span>
-                    <span className="cs-line cs-line-2 hero-highlight">new</span>
-                    <span className="cs-line cs-line-3">is loading...</span>
+            <div className="hero-slide slide-services">
+              <div className="services-inner">
+                <div className="services-content">
+                  <span className="services-kicker">$ services_offered</span>
+                  <h2 className="services-title">
+                    current <span className="hero-highlight">expertise</span>
                   </h2>
-                  <p className="coming-soon-sub">
-                    This slide is reserved for something exciting. Check back soon.
-                  </p>
-                  <div className="coming-soon-progress">
-                    <div className="cs-progress-label">
-                      <span>// building</span>
-                      <span className="cs-pct">--_%</span>
+                  <p className="services-sub">Solutions I provide to help your business thrive</p>
+                  
+                  <div className="services-grid">
+                    <div className="service-card">
+                      <span className="service-icon-wrapper">
+                        <HexBg color="rgba(0,255,136,0.35)" />
+                        <span className="service-icon-inner service-icon-research">
+                          <IconResearch size={40} color="#00ff88" />
+                        </span>
+                      </span>
+                      <h3>Technological Research Consultant & Researcher</h3>
+                      <p>In-depth analysis and consulting for cutting-edge technology implementations and research initiatives.</p>
                     </div>
-                    <div className="cs-progress-bar">
-                      <div className="cs-progress-fill"></div>
+
+                    <div className="service-card">
+                      <span className="service-icon-wrapper">
+                        <HexBg color="rgba(0,229,255,0.35)" />
+                        <span className="service-icon-inner service-icon-office">
+                          <IconOffice size={40} color="#00e5ff" />
+                        </span>
+                      </span>
+                      <h3>Microsoft Office License Activation</h3>
+                      <p>Professional setup and activation of Microsoft Office suite for seamless productivity.</p>
+                    </div>
+
+                    <div className="service-card">
+                      <span className="service-icon-wrapper">
+                        <HexBg color="rgba(255,183,0,0.35)" />
+                        <span className="service-icon-inner service-icon-video">
+                          <IconVideo size={40} color="#ffb700" />
+                        </span>
+                      </span>
+                      <h3>Video Editor</h3>
+                      <p>Professional video editing, color grading, and post-production services for compelling visual content.</p>
+                    </div>
+
+                    <div className="service-card">
+                      <span className="service-icon-wrapper">
+                        <HexBg color="rgba(180,100,255,0.35)" />
+                        <span className="service-icon-inner service-icon-web">
+                          <IconWebDev size={40} color="#b464ff" />
+                        </span>
+                      </span>
+                      <h3>Web & Landing Page Development</h3>
+                      <p>Custom-built responsive websites and high-converting landing pages tailored to your needs.</p>
                     </div>
                   </div>
-                  <div className="coming-soon-tags">
-                    {['???', 'tba', 'soon™'].map(t => (
-                      <span key={t} className="tech-tag cs-tag">{t}</span>
-                    ))}
+
+                  <div className="services-cta">
+                    <button className="btn" onClick={() => scrollToSection('contact-section')}>
+                      Get in touch <IconArrow size={14} />
+                    </button>
                   </div>
                 </div>
               </div>
