@@ -8,6 +8,10 @@ import logoImg  from '../assets/images/logo.png';
 import zadImg   from '../assets/images/zad.png';
 import heroVid  from '../assets/Videos/Hero_Vid.mp4';
 import pikachuVid from '../assets/Videos/Pikachu.mp4';
+import researchVid from '../assets/Videos/research.mp4';
+import microsoftVid from '../assets/Videos/microsoft.mp4';
+import videoEditingVid from '../assets/Videos/video-editing.mp4';
+import webDesignVid from '../assets/Videos/web-design.mp4';
 import certificate1Img from '../assets/images/certificate-1.png';
 import certificate2Img from '../assets/images/certificate-2.png';
 import certificate3Img from '../assets/images/certificate-3.png';
@@ -51,12 +55,12 @@ const assetType = (path) => {
 // Add a description for each project here, keyed by its filename (without extension).
 // The key must match the file name exactly (case-insensitive).
 const PROJECT_DESCRIPTIONS = {
-  '_braille connect_ a mobile application for visually impaired students': 'A thesis project designing an accessible mobile app that pairs braille input with audio feedback to help visually impaired students navigate learning materials independently.',
+  '_braille connect_ a mobile application for visually impaired students': 'The Braille Connect Application is a technology-based research project developed as a prerequisite requirement for an undergraduate degree. The project was collaboratively developed by Neil Francis T. Arnaiz and Zaldy A. Dagohoy, who combined their respective expertise and skills in research, technology, and application development to conceptualize and develop the system. The project aims to demonstrate how technology can be utilized to address accessibility needs and provide innovative solutions for individuals with visual impairments.',
   // 'another-file-name': 'Its description...',
 };
 
 const getProjectDescription = (name) =>
-  PROJECT_DESCRIPTIONS[name.trim().toLowerCase()] || 'No description added yet — add one to PROJECT_DESCRIPTIONS in HomePage.jsx.';
+  PROJECT_DESCRIPTIONS[name.trim().toLowerCase()] || '\n\nThe Braille Connect Application is a technology-based research project developed as a prerequisite requirement for an undergraduate degree. The project was collaboratively developed by Neil Francis T. Arnaiz and Zaldy A. Dagohoy, who combined their respective expertise and skills in research, technology, and application development to conceptualize and develop the system.\n\nThe project aims to demonstrate how technology can be utilized to address accessibility needs and provide innovative solutions for individuals with visual impairments.';
 
 const getInitials = (name = '') =>
   name
@@ -1111,8 +1115,16 @@ const HeroSlideshow = ({ children, scrollToSection, socialItems, stackIcons }) =
   const [activeSlide, setActiveSlide] = useState(0);
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [direction, setDirection] = useState('next');
+  const [flippedCards, setFlippedCards] = useState({});
   const autoRef = useRef(null);
   const TOTAL_SLIDES = 3;
+
+  const toggleCardFlip = (index) => {
+    setFlippedCards(prev => ({
+      ...prev,
+      [index]: !prev[index]
+    }));
+  };
 
   const goTo = (index, dir = 'next') => {
     if (isTransitioning || index === activeSlide) return;
@@ -1284,48 +1296,124 @@ const HeroSlideshow = ({ children, scrollToSection, socialItems, stackIcons }) =
                   <p className="services-sub">Solutions I provide to help your business thrive</p>
                   
                   <div className="services-grid">
-                    <div className="service-card">
-                      <span className="service-icon-wrapper">
-                        <HexBg color="rgba(0,255,136,0.35)" />
-                        <span className="service-icon-inner service-icon-research">
-                          <IconResearch size={40} color="#00ff88" />
-                        </span>
-                      </span>
-                      <h3>Technological Research Consultant & Researcher</h3>
-                      <p>In-depth analysis and consulting for cutting-edge technology implementations and research initiatives.</p>
+                    {/* SERVICE CARD 1 */}
+                    <div className={`service-card-flip ${flippedCards[0] ? 'flipped' : ''}`} onClick={() => toggleCardFlip(0)}>
+                      <div className="service-card-inner">
+                        {/* FRONT (Back of Card) */}
+                        <div className="service-card-front">
+                          <span className="service-icon-wrapper">
+                            <span className="service-icon-inner service-icon-research">
+                              <IconResearch size={84} color="#00ff88" />
+                            </span>
+                          </span>
+                        </div>
+                        {/* BACK (Service Details) */}
+                        <div className="service-card-back">
+                          <video
+                            className="service-card-video-bg"
+                            src={researchVid}
+                            autoPlay
+                            muted
+                            loop
+                            playsInline
+                            preload="auto"
+                          />
+                          <div className="service-card-back-content">
+                            <h3 className="service-card-research-title">Technological Research Consultant & Research Services Provider</h3>
+                            <p className="service-card-research-description">In-depth analysis and consulting for cutting-edge technology implementations and research initiatives.</p>
+                          </div>
+                        </div>
+                      </div>
                     </div>
 
-                    <div className="service-card">
-                      <span className="service-icon-wrapper">
-                        <HexBg color="rgba(0,229,255,0.35)" />
-                        <span className="service-icon-inner service-icon-office">
-                          <IconOffice size={40} color="#00e5ff" />
-                        </span>
-                      </span>
-                      <h3>Microsoft Office License Activation</h3>
-                      <p>Professional setup and activation of Microsoft Office suite for seamless productivity.</p>
+                    {/* SERVICE CARD 2 */}
+                    <div className={`service-card-flip ${flippedCards[1] ? 'flipped' : ''}`} onClick={() => toggleCardFlip(1)}>
+                      <div className="service-card-inner">
+                        {/* FRONT (Back of Card) */}
+                        <div className="service-card-front">
+                          <span className="service-icon-wrapper">
+                            <span className="service-icon-inner service-icon-office">
+                              <IconOffice size={84} color="#00e5ff" />
+                            </span>
+                          </span>
+                        </div>
+                        {/* BACK (Service Details) */}
+                        <div className="service-card-back">
+                          <video
+                            className="service-card-video-bg"
+                            src={microsoftVid}
+                            autoPlay
+                            muted
+                            loop
+                            playsInline
+                            preload="auto"
+                          />
+                          <div className="service-card-back-content">
+                            <h3 className="service-card-office-title">Microsoft Office License Activation</h3>
+                            <p className="service-card-office-description">Professional setup and activation of Microsoft Office suite for seamless productivity.</p>
+                          </div>
+                        </div>
+                      </div>
                     </div>
 
-                    <div className="service-card">
-                      <span className="service-icon-wrapper">
-                        <HexBg color="rgba(255,183,0,0.35)" />
-                        <span className="service-icon-inner service-icon-video">
-                          <IconVideo size={40} color="#ffb700" />
-                        </span>
-                      </span>
-                      <h3>Video Editor</h3>
-                      <p>Professional video editing, color grading, and post-production services for compelling visual content.</p>
+                    {/* SERVICE CARD 3 */}
+                    <div className={`service-card-flip ${flippedCards[2] ? 'flipped' : ''}`} onClick={() => toggleCardFlip(2)}>
+                      <div className="service-card-inner">
+                        {/* FRONT (Back of Card) */}
+                        <div className="service-card-front">
+                          <span className="service-icon-wrapper">
+                            <span className="service-icon-inner service-icon-video">
+                              <IconVideo size={84} color="#ffb700" />
+                            </span>
+                          </span>
+                        </div>
+                        {/* BACK (Service Details) */}
+                        <div className="service-card-back">
+                          <video
+                            className="service-card-video-bg"
+                            src={videoEditingVid}
+                            autoPlay
+                            muted
+                            loop
+                            playsInline
+                            preload="auto"
+                          />
+                          <div className="service-card-back-content">
+                            <h3 className="service-card-video-title">Video Editor</h3>
+                            <p className="service-card-video-description">Professional video editing, color grading, and post-production services for compelling visual content.</p>
+                          </div>
+                        </div>
+                      </div>
                     </div>
 
-                    <div className="service-card">
-                      <span className="service-icon-wrapper">
-                        <HexBg color="rgba(180,100,255,0.35)" />
-                        <span className="service-icon-inner service-icon-web">
-                          <IconWebDev size={40} color="#b464ff" />
-                        </span>
-                      </span>
-                      <h3>Web & Landing Page Development</h3>
-                      <p>Custom-built responsive websites and high-converting landing pages tailored to your needs.</p>
+                    {/* SERVICE CARD 4 */}
+                    <div className={`service-card-flip ${flippedCards[3] ? 'flipped' : ''}`} onClick={() => toggleCardFlip(3)}>
+                      <div className="service-card-inner">
+                        {/* FRONT (Back of Card) */}
+                        <div className="service-card-front">
+                          <span className="service-icon-wrapper">
+                            <span className="service-icon-inner service-icon-web">
+                              <IconWebDev size={84} color="#b464ff" />
+                            </span>
+                          </span>
+                        </div>
+                        {/* BACK (Service Details) */}
+                        <div className="service-card-back">
+                          <video
+                            className="service-card-video-bg"
+                            src={webDesignVid}
+                            autoPlay
+                            muted
+                            loop
+                            playsInline
+                            preload="auto"
+                          />
+                          <div className="service-card-back-content">
+                            <h3 className="service-card-web-title">Web & Landing Page Development</h3>
+                            <p className="service-card-web-description">Custom-built responsive websites and high-converting landing pages tailored to your needs.</p>
+                          </div>
+                        </div>
+                      </div>
                     </div>
                   </div>
 
@@ -2192,30 +2280,38 @@ const SkillCube = ({ skills }) => {
             ) : certificates.length === 0 ? (
               <div className="cert-empty">No certificates available.</div>
             ) : (
-              certificates.map((cert, index) => {
-                const imageUrl = (() => {
-                  if (!cert?.image_url) return '';
-                  if (typeof cert.image_url === 'string' && cert.image_url.startsWith('http')) return cert.image_url;
-                  if (typeof cert.image_url === 'string' && cert.image_url.startsWith('/')) return cert.image_url;
-                  return cert.image_url;
-                })();
+              (() => {
+                const certificateItems = [...certificates, ...certificates];
                 return (
-                  <div
-                    key={`cert-${cert.id || index}`}
-                    className={`cert-card cert-card-${index + 1}`}
-                    onClick={() => openCertificate({ title: cert.title, image: imageUrl })}
-                    role="button" tabIndex={0} aria-label={`View ${cert.title}`}
-                    onKeyDown={(e) => e.key === 'Enter' && openCertificate({ title: cert.title, image: imageUrl })}
-                  >
-                    <div className="cert-card-img-wrap">
-                      <img src={imageUrl} alt={cert.title || `Certificate ${index + 1}`} />
-                      <div className="cert-card-hover-overlay">
-                        <i className="fas fa-expand-alt"></i>
-                      </div>
-                    </div>
+                  <div className="cert-track">
+                    {certificateItems.map((cert, index) => {
+                      const imageUrl = (() => {
+                        if (!cert?.image_url) return '';
+                        if (typeof cert.image_url === 'string' && cert.image_url.startsWith('http')) return cert.image_url;
+                        if (typeof cert.image_url === 'string' && cert.image_url.startsWith('/')) return cert.image_url;
+                        return cert.image_url;
+                      })();
+                      const actualIndex = index % certificates.length;
+                      return (
+                        <div
+                          key={`cert-${cert.id || actualIndex}-${index}`}
+                          className={`cert-card cert-card-${actualIndex + 1}`}
+                          onClick={() => openCertificate({ title: cert.title, image: imageUrl })}
+                          role="button" tabIndex={0} aria-label={`View ${cert.title}`}
+                          onKeyDown={(e) => e.key === 'Enter' && openCertificate({ title: cert.title, image: imageUrl })}
+                        >
+                          <div className="cert-card-img-wrap">
+                            <img src={imageUrl} alt={cert.title || `Certificate ${actualIndex + 1}`} />
+                            <div className="cert-card-hover-overlay">
+                              <i className="fas fa-expand-alt"></i>
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
                   </div>
                 );
-              })
+              })()
             )}
           </div>
         </section>

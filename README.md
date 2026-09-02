@@ -1,5 +1,11 @@
 # Portfolio Landing Page
 
+## Braille Connect Application
+
+The **Braille Connect Application** is a technology-based research project developed as a prerequisite requirement for an undergraduate degree. The project was collaboratively developed by **Neil Francis T. Arnaiz** and **Zaldy A. Dagohoy**, who combined their respective expertise and skills in research, technology, and application development to conceptualize and develop the system.
+
+The project aims to demonstrate how technology can be utilized to address accessibility needs and provide innovative solutions for individuals with visual impairments.
+
 ## Supabase Contact Inbox
 
 The contact form writes visitor messages to the `contact_messages` table. The admin page reads the same table at `/admin`.

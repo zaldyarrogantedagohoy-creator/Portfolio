@@ -10,3 +10,5 @@ target/
 *.dll
 *.lib
 *.a
+.vercel
+.env*
