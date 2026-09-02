@@ -8,6 +8,7 @@ import logoImg  from '../assets/images/logo.png';
 import zadImg   from '../assets/images/zad.png';
 import heroVid  from '../assets/Videos/Hero_Vid.mp4';
 import pikachuVid from '../assets/Videos/Pikachu.mp4';
+import serviceBgVid from '../assets/Videos/Service-bg.mp4';
 import researchVid from '../assets/Videos/research.mp4';
 import microsoftVid from '../assets/Videos/microsoft.mp4';
 import videoEditingVid from '../assets/Videos/video-editing.mp4';
@@ -1147,7 +1148,7 @@ const HeroSlideshow = ({ children, scrollToSection, socialItems, stackIcons }) =
         setActiveSlide(prev => (prev + 1) % TOTAL_SLIDES);
         setIsTransitioning(false);
       }, 400);
-    }, 7000);
+    }, 10000);
     return () => clearInterval(autoRef.current);
   }, []);
 
@@ -1160,7 +1161,7 @@ const HeroSlideshow = ({ children, scrollToSection, socialItems, stackIcons }) =
         setActiveSlide(prev => (prev + 1) % TOTAL_SLIDES);
         setIsTransitioning(false);
       }, 400);
-    }, 7000);
+    }, 10000);
   };
 
   const videoRef = useRef(null);
@@ -1288,6 +1289,15 @@ const HeroSlideshow = ({ children, scrollToSection, socialItems, stackIcons }) =
           {activeSlide === 2 && (
             <div className="hero-slide slide-services">
               <div className="services-inner">
+                <video
+                  className="services-bg-video"
+                  src={serviceBgVid}
+                  autoPlay
+                  muted
+                  loop
+                  playsInline
+                  preload="auto"
+                />
                 <div className="services-content">
                   <span className="services-kicker">$ services_offered</span>
                   <h2 className="services-title">
