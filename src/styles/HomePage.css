@@ -1077,11 +1077,71 @@ section { padding: 4rem 0; }
 }
 
 @media (max-width: 768px) {
+  .slide-services {
+    min-height: auto;
+  }
+
+  .services-inner {
+    min-height: 100vh;
+    height: auto;
+    padding: 5rem 0.8rem 3rem;
+  }
+
+  .services-content {
+    max-width: 100%;
+    gap: 1rem;
+  }
+
   .services-grid {
     grid-template-columns: 1fr;
-    gap: 1.5rem;
+    gap: 1rem;
+    width: 100%;
   }
-  
+
+  .service-card-flip,
+  .service-card-inner {
+    min-height: 220px;
+  }
+
+  .service-card-front,
+  .service-card-back {
+    padding: 1rem 0.8rem;
+    border-radius: 12px;
+  }
+
+  .service-card-back-content {
+    padding: 0.8rem 0.6rem;
+  }
+
+  .service-card-front .service-icon-wrapper,
+  .service-card-back .service-icon-wrapper {
+    width: 58px;
+    height: 58px;
+  }
+
+  .service-card-back h3 {
+    font-size: 0.78rem;
+  }
+
+  .service-card-back .service-card-research-title,
+  .service-card-back .service-card-research-description,
+  .service-card-back .service-card-office-title,
+  .service-card-back .service-card-office-description,
+  .service-card-back .service-card-video-title,
+  .service-card-back .service-card-video-description,
+  .service-card-back .service-card-web-title,
+  .service-card-back .service-card-web-description {
+    font-size: clamp(0.56rem, 2.2vw, 0.7rem);
+  }
+
+  .service-card-back .service-card-research-description,
+  .service-card-back .service-card-office-description,
+  .service-card-back .service-card-video-description,
+  .service-card-back .service-card-web-description {
+    line-height: 1.35;
+    max-width: 100%;
+  }
+
   .services-title {
     font-size: clamp(1.8rem, 5vw, 3rem);
   }
