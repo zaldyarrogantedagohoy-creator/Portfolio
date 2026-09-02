@@ -1116,16 +1116,8 @@ const HeroSlideshow = ({ children, scrollToSection, socialItems, stackIcons }) =
   const [activeSlide, setActiveSlide] = useState(0);
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [direction, setDirection] = useState('next');
-  const [flippedCards, setFlippedCards] = useState({});
   const autoRef = useRef(null);
   const TOTAL_SLIDES = 3;
-
-  const toggleCardFlip = (index) => {
-    setFlippedCards(prev => ({
-      ...prev,
-      [index]: !prev[index]
-    }));
-  };
 
   const goTo = (index, dir = 'next') => {
     if (isTransitioning || index === activeSlide) return;
@@ -1306,123 +1298,67 @@ const HeroSlideshow = ({ children, scrollToSection, socialItems, stackIcons }) =
                   <p className="services-sub">Solutions I provide to help your business thrive</p>
                   
                   <div className="services-grid">
-                    {/* SERVICE CARD 1 */}
-                    <div className={`service-card-flip ${flippedCards[0] ? 'flipped' : ''}`} onClick={() => toggleCardFlip(0)}>
-                      <div className="service-card-inner">
-                        {/* FRONT (Back of Card) */}
-                        <div className="service-card-front">
-                          <span className="service-icon-wrapper">
-                            <span className="service-icon-inner service-icon-research">
-                              <IconResearch size={132} color="#ff4d4d" />
-                            </span>
-                          </span>
-                        </div>
-                        {/* BACK (Service Details) */}
-                        <div className="service-card-back">
-                          <video
-                            className="service-card-video-bg"
-                            src={researchVid}
-                            autoPlay
-                            muted
-                            loop
-                            playsInline
-                            preload="auto"
-                          />
-                          <div className="service-card-back-content">
-                            <h3 className="service-card-research-title">Technological Research Consultant & Research Services Provider</h3>
-                            <p className="service-card-research-description">In-depth analysis and consulting for cutting-edge technology implementations and research initiatives.</p>
-                          </div>
-                        </div>
+                    <div className="service-card service-card-research">
+                      <video
+                        className="service-card-video-bg"
+                        src={researchVid}
+                        autoPlay
+                        muted
+                        loop
+                        playsInline
+                        preload="auto"
+                      />
+                      <div className="service-card-back-content">
+                        <h3 className="service-card-research-title">Technological Research Consultant & Research Services Provider</h3>
+                        <p className="service-card-research-description">In-depth analysis and consulting for cutting-edge technology implementations and research initiatives.</p>
                       </div>
                     </div>
 
-                    {/* SERVICE CARD 2 */}
-                    <div className={`service-card-flip ${flippedCards[1] ? 'flipped' : ''}`} onClick={() => toggleCardFlip(1)}>
-                      <div className="service-card-inner">
-                        {/* FRONT (Back of Card) */}
-                        <div className="service-card-front">
-                          <span className="service-icon-wrapper">
-                            <span className="service-icon-inner service-icon-office">
-                              <IconOffice size={132} color="#00e5ff" />
-                            </span>
-                          </span>
-                        </div>
-                        {/* BACK (Service Details) */}
-                        <div className="service-card-back">
-                          <video
-                            className="service-card-video-bg"
-                            src={microsoftVid}
-                            autoPlay
-                            muted
-                            loop
-                            playsInline
-                            preload="auto"
-                          />
-                          <div className="service-card-back-content">
-                            <h3 className="service-card-office-title">Microsoft Office License Activation</h3>
-                            <p className="service-card-office-description">Professional setup and activation of Microsoft Office suite for seamless productivity.</p>
-                          </div>
-                        </div>
+                    <div className="service-card service-card-office">
+                      <video
+                        className="service-card-video-bg"
+                        src={microsoftVid}
+                        autoPlay
+                        muted
+                        loop
+                        playsInline
+                        preload="auto"
+                      />
+                      <div className="service-card-back-content">
+                        <h3 className="service-card-office-title">Microsoft Office License Activation</h3>
+                        <p className="service-card-office-description">Professional setup and activation of Microsoft Office suite for seamless productivity.</p>
                       </div>
                     </div>
 
-                    {/* SERVICE CARD 3 */}
-                    <div className={`service-card-flip ${flippedCards[2] ? 'flipped' : ''}`} onClick={() => toggleCardFlip(2)}>
-                      <div className="service-card-inner">
-                        {/* FRONT (Back of Card) */}
-                        <div className="service-card-front">
-                          <span className="service-icon-wrapper">
-                            <span className="service-icon-inner service-icon-video">
-                              <IconVideo size={132} color="#ffb700" />
-                            </span>
-                          </span>
-                        </div>
-                        {/* BACK (Service Details) */}
-                        <div className="service-card-back">
-                          <video
-                            className="service-card-video-bg"
-                            src={videoEditingVid}
-                            autoPlay
-                            muted
-                            loop
-                            playsInline
-                            preload="auto"
-                          />
-                          <div className="service-card-back-content">
-                            <h3 className="service-card-video-title">Video Editor</h3>
-                            <p className="service-card-video-description">Professional video editing, color grading, and post-production services for compelling visual content.</p>
-                          </div>
-                        </div>
+                    <div className="service-card service-card-video">
+                      <video
+                        className="service-card-video-bg"
+                        src={videoEditingVid}
+                        autoPlay
+                        muted
+                        loop
+                        playsInline
+                        preload="auto"
+                      />
+                      <div className="service-card-back-content">
+                        <h3 className="service-card-video-title">Video Editor</h3>
+                        <p className="service-card-video-description">Professional video editing, color grading, and post-production services for compelling visual content.</p>
                       </div>
                     </div>
 
-                    {/* SERVICE CARD 4 */}
-                    <div className={`service-card-flip ${flippedCards[3] ? 'flipped' : ''}`} onClick={() => toggleCardFlip(3)}>
-                      <div className="service-card-inner">
-                        {/* FRONT (Back of Card) */}
-                        <div className="service-card-front">
-                          <span className="service-icon-wrapper">
-                            <span className="service-icon-inner service-icon-web">
-                              <IconWebDev size={132} color="#b464ff" />
-                            </span>
-                          </span>
-                        </div>
-                        {/* BACK (Service Details) */}
-                        <div className="service-card-back">
-                          <video
-                            className="service-card-video-bg"
-                            src={webDesignVid}
-                            autoPlay
-                            muted
-                            loop
-                            playsInline
-                            preload="auto"
-                          />
-                          <div className="service-card-back-content">
-                            <h3 className="service-card-web-title">Web & Landing Page Development</h3>
-                            <p className="service-card-web-description">Custom-built responsive websites and high-converting landing pages tailored to your needs.</p>
-                          </div>
-                        </div>
+                    <div className="service-card service-card-web">
+                      <video
+                        className="service-card-video-bg"
+                        src={webDesignVid}
+                        autoPlay
+                        muted
+                        loop
+                        playsInline
+                        preload="auto"
+                      />
+                      <div className="service-card-back-content">
+                        <h3 className="service-card-web-title">Web & Landing Page Development</h3>
+                        <p className="service-card-web-description">Custom-built responsive websites and high-converting landing pages tailored to your needs.</p>
                       </div>
                     </div>
                   </div>
