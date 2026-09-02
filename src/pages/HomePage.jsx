@@ -1116,8 +1116,61 @@ const HeroSlideshow = ({ children, scrollToSection, socialItems, stackIcons }) =
   const [activeSlide, setActiveSlide] = useState(0);
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [direction, setDirection] = useState('next');
+  const [selectedService, setSelectedService] = useState(null);
+  const [isModalClosing, setIsModalClosing] = useState(false);
   const autoRef = useRef(null);
   const TOTAL_SLIDES = 3;
+
+  const closeSelectedService = () => {
+    if (!selectedService || isModalClosing) return;
+    setIsModalClosing(true);
+  };
+
+  const servicePricing = [
+    {
+      id: 'research',
+      title: 'Technological Research Services',
+      description: 'Research-backed strategy and analysis for modern digital and tech initiatives.',
+      pricing: [
+        { label: 'Chapter 1 & 3', peso: '₱600 – ₱1,500', usd: 'Not available' },
+        { label: 'Chapter 2', peso: 'Not available', usd: 'Not available' },
+        { label: 'Chapter 4 & 5', peso: 'Not available', usd: 'Not available' },
+      ],
+      note: 'Best for research planning, feasibility studies, and tech advisory work.',
+    },
+    {
+      id: 'office',
+      title: 'Microsoft Office License Activation',
+      description: 'Setup and activation support for office productivity tools for personal or business use.',
+      pricing: [
+        { label: '180 Days', peso: '₱500', usd: 'Not available' },
+        { label: 'Lifetime', peso: '₱1,000', usd: 'Not available' },
+      ],
+      note: 'Ideal for installation, activation, and productivity setup support.',
+    },
+    {
+      id: 'video',
+      title: 'Video Editor',
+      description: 'Editing, motion graphics, and polished post-production for business or personal content.',
+      pricing: [
+        { label: '1-15 minutes video', peso: '₱500', usd: '$9' },
+        { label: '15-30 minutes video', peso: '₱1,000', usd: '$19' },
+        { label: '30-60+ minutes video', peso: '₱5,000', usd: '$90' },
+      ],
+      note: 'Suitable for promo videos, reels, tutorials, and social media content.',
+    },
+    {
+      id: 'web',
+      title: 'Web & Landing Page Development',
+      description: 'Responsive web design and landing pages built to convert and represent your brand.',
+      pricing: [
+        { label: 'Landing Page', peso: '₱10,000', usd: '$5,000' },
+        { label: 'Business and Coorporate Websites', peso: '₱30,000', usd: '$10,000' },
+        { label: 'E-commerce Websites', peso: 'Not available', usd: 'Not available' },
+      ],
+      note: 'Great for modern business websites, product pages, and landing pages.',
+    },
+  ];
 
   const goTo = (index, dir = 'next') => {
     if (isTransitioning || index === activeSlide) return;
@@ -1298,70 +1351,108 @@ const HeroSlideshow = ({ children, scrollToSection, socialItems, stackIcons }) =
                   <p className="services-sub">Solutions I provide to help your business thrive</p>
                   
                   <div className="services-grid">
-                    <div className="service-card service-card-research">
-                      <video
-                        className="service-card-video-bg"
-                        src={researchVid}
-                        autoPlay
-                        muted
-                        loop
-                        playsInline
-                        preload="auto"
-                      />
-                      <div className="service-card-back-content">
-                        <h3 className="service-card-research-title">Technological Research Consultant & Research Services Provider</h3>
-                        <p className="service-card-research-description">In-depth analysis and consulting for cutting-edge technology implementations and research initiatives.</p>
+                    {servicePricing.map((service, index) => (
+                      <div
+                        key={service.id}
+                        className={`service-card service-card-${service.id}`}
+                        onClick={() => setSelectedService(service)}
+                        onKeyDown={(event) => {
+                          if (event.key === 'Enter' || event.key === ' ') {
+                            event.preventDefault();
+                            setSelectedService(service);
+                          }
+                        }}
+                        role="button"
+                        tabIndex={0}
+                        aria-label={`View pricing for ${service.title}`}
+                      >
+                        <video
+                          className="service-card-video-bg"
+                          src={[
+                            researchVid,
+                            microsoftVid,
+                            videoEditingVid,
+                            webDesignVid,
+                          ][index]}
+                          autoPlay
+                          muted
+                          loop
+                          playsInline
+                          preload="auto"
+                        />
+                        <div className="service-card-back-content">
+                          <h3 className={`service-card-${service.id}-title`}>{service.title}</h3>
+                          <p className={`service-card-${service.id}-description`}>{service.description}</p>
+                        </div>
                       </div>
-                    </div>
-
-                    <div className="service-card service-card-office">
-                      <video
-                        className="service-card-video-bg"
-                        src={microsoftVid}
-                        autoPlay
-                        muted
-                        loop
-                        playsInline
-                        preload="auto"
-                      />
-                      <div className="service-card-back-content">
-                        <h3 className="service-card-office-title">Microsoft Office License Activation</h3>
-                        <p className="service-card-office-description">Professional setup and activation of Microsoft Office suite for seamless productivity.</p>
-                      </div>
-                    </div>
-
-                    <div className="service-card service-card-video">
-                      <video
-                        className="service-card-video-bg"
-                        src={videoEditingVid}
-                        autoPlay
-                        muted
-                        loop
-                        playsInline
-                        preload="auto"
-                      />
-                      <div className="service-card-back-content">
-                        <h3 className="service-card-video-title">Video Editor</h3>
-                        <p className="service-card-video-description">Professional video editing, color grading, and post-production services for compelling visual content.</p>
-                      </div>
-                    </div>
-
-                    <div className="service-card service-card-web">
-                      <video
-                        className="service-card-video-bg"
-                        src={webDesignVid}
-                        autoPlay
-                        muted
-                        loop
-                        playsInline
-                        preload="auto"
-                      />
-                      <div className="service-card-back-content">
-                        <h3 className="service-card-web-title">Web & Landing Page Development</h3>
-                        <p className="service-card-web-description">Custom-built responsive websites and high-converting landing pages tailored to your needs.</p>
-                      </div>
-                    </div>
+                    ))}
                   </div>
+
+                  <p className="services-more-soon">More services offered soon</p>
+
+                  {selectedService && (
+                    <div
+                      className={`service-price-modal-overlay ${isModalClosing ? 'is-closing' : 'is-open'}`}
+                      onClick={closeSelectedService}
+                      onAnimationEnd={(event) => {
+                        if (isModalClosing && event.animationName === 'modal-overlay-out') {
+                          setSelectedService(null);
+                          setIsModalClosing(false);
+                        }
+                      }}
+                    >
+                      <div
+                        className={`service-price-modal ${isModalClosing ? 'is-closing' : 'is-open'}`}
+                        onClick={(event) => event.stopPropagation()}
+                        onAnimationEnd={(event) => {
+                          if (isModalClosing && event.animationName === 'tv-power-off') {
+                            setSelectedService(null);
+                            setIsModalClosing(false);
+                          }
+                        }}
+                      >
+                        <button
+                          type="button"
+                          className="service-price-close"
+                          onClick={closeSelectedService}
+                          aria-label="Close pricing"
+                        >
+                          ×
+                        </button>
+                        <p className="service-price-kicker">Service Pricing</p>
+                        <h3>{selectedService.title}</h3>
+                        <p className="service-price-summary">{selectedService.note}</p>
+
+                        <div className="service-price-columns">
+                          <div className="service-price-region">
+                            <span className="service-price-region-label">PH based price</span>
+                            <div className="service-price-grid service-price-grid-local">
+                              {selectedService.pricing.map((tier) => (
+                                <div className="service-price-box" key={`${selectedService.id}-${tier.label}-ph`}>
+                                  <span className="service-price-label">{tier.label}</span>
+                                  <strong>{tier.peso}</strong>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+
+                          <div className="service-price-region">
+                            <span className="service-price-region-label">US / other country price</span>
+                            <div className="service-price-grid service-price-grid-foreign">
+                              {selectedService.pricing.map((tier) => (
+                                <div className="service-price-box" key={`${selectedService.id}-${tier.label}-usd`}>
+                                  <span className="service-price-label">{tier.label}</span>
+                                  <strong>{tier.usd}</strong>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        </div>
+
+                        <p className="service-price-rate">Estimated exchange rate: ₱62.64 = $1</p>
+                      </div>
+                    </div>
+                  )}
 
                   <div className="services-cta">
                     <button className="btn" onClick={() => scrollToSection('contact-section')}>
@@ -2141,7 +2232,7 @@ const SkillCube = ({ skills }) => {
                 </div>
                 <div className="about-metrics" aria-label="About highlights">
                   <span><strong>07</strong> stack stages</span>
-                  <span><strong>24h</strong> reply window</span>
+                  <span><strong>8:00AM–4:30PM</strong> reply window</span>
                   <span><strong>PH</strong> based</span>
                 </div>
               </div>

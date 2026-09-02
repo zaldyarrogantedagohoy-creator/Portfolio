@@ -921,7 +921,306 @@ section { padding: 4rem 0; }
   display: flex;
   justify-content: center;
   gap: 1rem;
+  margin-top: 0.5rem;
+  transform: translateY(-4px);
+}
+
+.service-price-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(3, 8, 12, 0.72);
+  backdrop-filter: blur(6px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+  padding: 1rem;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.service-price-modal-overlay.is-open {
+  animation: modal-overlay-in 0.22s ease forwards;
+  pointer-events: auto;
+}
+
+.service-price-modal-overlay.is-closing {
+  animation: modal-overlay-out 0.35s ease forwards;
+}
+
+.service-price-modal {
+  position: relative;
+  width: min(560px, 92vw);
+  background: rgba(17, 98, 68, 0.18);
+  border: 0;
+  border-radius: 18px;
+  box-shadow: none;
+  padding: 1.5rem 1.4rem 1.2rem;
+  text-align: center;
+  opacity: 0;
+  transform-origin: center center;
+  overflow: hidden;
+  filter: brightness(0.7);
+}
+
+.service-price-modal::before,
+.service-price-modal::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 50%;
+  background: rgba(17, 98, 68, 0.22);
+  z-index: 2;
+  pointer-events: none;
+}
+
+.service-price-modal::before {
+  top: 0;
+  transform: translateY(-100%);
+}
+
+.service-price-modal::after {
+  bottom: 0;
+  transform: translateY(100%);
+}
+
+.service-price-modal.is-open {
+  animation: tv-power-on 0.46s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+}
+
+.service-price-modal.is-open::before {
+  animation: top-panel-open 0.46s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+}
+
+.service-price-modal.is-open::after {
+  animation: bottom-panel-open 0.46s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+}
+
+.service-price-modal.is-closing {
+  animation: tv-power-off 0.42s cubic-bezier(0.45, 0, 1, 1) forwards;
+}
+
+.service-price-modal.is-closing::before {
+  animation: top-panel-close 0.42s cubic-bezier(0.45, 0, 1, 1) forwards;
+}
+
+.service-price-modal.is-closing::after {
+  animation: bottom-panel-close 0.42s cubic-bezier(0.45, 0, 1, 1) forwards;
+}
+
+@keyframes modal-overlay-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes modal-overlay-out {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes tv-power-on {
+  0% {
+    opacity: 0;
+    filter: brightness(0.3);
+    transform: scaleY(0.7);
+  }
+  42% {
+    opacity: 0.9;
+    filter: brightness(0.9);
+    transform: scaleY(0.95);
+  }
+  100% {
+    opacity: 1;
+    filter: brightness(1);
+    transform: scaleY(1);
+  }
+}
+
+@keyframes top-panel-open {
+  0% {
+    transform: translateY(-90%);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(-120%);
+    opacity: 1;
+  }
+}
+
+@keyframes bottom-panel-open {
+  0% {
+    transform: translateY(90%);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(120%);
+    opacity: 1;
+  }
+}
+
+@keyframes tv-power-off {
+  0% {
+    opacity: 1;
+    filter: brightness(1);
+    transform: scaleY(1);
+  }
+  35% {
+    opacity: 0.9;
+    filter: brightness(0.82);
+    transform: scaleY(0.98);
+  }
+  100% {
+    opacity: 0;
+    filter: brightness(0.2);
+    transform: scaleY(0.7);
+  }
+}
+
+@keyframes top-panel-close {
+  0% {
+    transform: translateY(-120%);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(0%);
+    opacity: 1;
+  }
+}
+
+@keyframes bottom-panel-close {
+  0% {
+    transform: translateY(120%);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(0%);
+    opacity: 1;
+  }
+}
+
+.service-price-close {
+  position: absolute;
+  top: 0.8rem;
+  right: 0.8rem;
+  width: 34px;
+  height: 34px;
+  border: 1px solid rgba(255,255,255,0.14);
+  border-radius: 50%;
+  background: rgba(255,255,255,0.04);
+  color: #fff;
+  font-size: 1.5rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.service-price-kicker {
+  font-size: 0.7rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--green);
+  margin: 0 0 0.6rem;
+}
+
+.service-price-modal h3 {
+  margin: 0;
+  font-size: clamp(1.2rem, 2vw, 1.8rem);
+  color: #fff;
+}
+
+.service-price-summary {
+  margin: 0.8rem auto 1.2rem;
+  max-width: 420px;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  color: rgba(255,255,255,0.8);
+}
+
+.service-price-columns {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(200px, 1fr));
+  gap: 1rem;
   margin-top: 1rem;
+}
+
+.service-price-region {
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+}
+
+.service-price-region-label {
+  font-size: 0.62rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.7);
+  text-align: center;
+}
+
+.service-price-grid {
+  display: grid;
+  grid-template-columns: repeat(1, minmax(110px, 1fr));
+  gap: 0.7rem;
+  width: 100%;
+  justify-items: center;
+}
+
+.service-price-box {
+  width: 100%;
+  max-width: 210px;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 12px;
+  padding: 0.7rem 0.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: 0.2rem;
+}
+
+.service-price-label {
+  font-size: 0.6rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.7);
+  text-align: center;
+}
+
+.service-price-box strong {
+  font-size: 0.98rem;
+  color: var(--green);
+  text-align: center;
+}
+
+.service-price-box small {
+  font-size: 0.68rem;
+  color: rgba(255,255,255,0.75);
+  text-align: center;
+}
+
+.service-price-rate {
+  margin: 1rem 0 0;
+  font-size: 0.8rem;
+  color: rgba(255,255,255,0.7);
+}
+
+.services-more-soon {
+  margin: 0.8rem auto 0;
+  text-align: center;
+  font-size: 0.76rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.72);
 }
 
 .services-cta .btn {
@@ -980,6 +1279,19 @@ section { padding: 4rem 0; }
   .service-card-web-description {
     line-height: 1.35;
     max-width: 100%;
+  }
+
+  .service-price-modal {
+    padding: 1.2rem 0.9rem 1rem;
+  }
+
+  .service-price-grid {
+    grid-template-columns: 1fr;
+    gap: 0.6rem;
+  }
+
+  .service-price-box {
+    padding: 0.75rem 0.6rem;
   }
 
   .services-title {
