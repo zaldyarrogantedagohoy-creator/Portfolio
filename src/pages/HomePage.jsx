@@ -1132,7 +1132,7 @@ const HeroSlideshow = ({ children, scrollToSection, socialItems, stackIcons }) =
       title: 'Technological Research Services',
       description: 'Research-backed strategy and analysis for modern digital and tech initiatives.',
       pricing: [
-        { label: 'Chapter 1 & 3', peso: '₱600 – ₱1,500', usd: 'Not available' },
+        { label: 'Chapter 1 & 3', peso: '₱600 – ₱1,500+', usd: 'Not available' },
         { label: 'Chapter 2', peso: 'Not available', usd: 'Not available' },
         { label: 'Chapter 4 & 5', peso: 'Not available', usd: 'Not available' },
       ],
@@ -1143,7 +1143,7 @@ const HeroSlideshow = ({ children, scrollToSection, socialItems, stackIcons }) =
       title: 'Microsoft Office License Activation',
       description: 'Setup and activation support for office productivity tools for personal or business use.',
       pricing: [
-        { label: '180 Days', peso: '₱500', usd: 'Not available' },
+        { label: '180 Days', peso: '₱500+', usd: 'Not available' },
         { label: 'Lifetime', peso: '₱1,000', usd: 'Not available' },
       ],
       note: 'Ideal for installation, activation, and productivity setup support.',
@@ -1153,9 +1153,9 @@ const HeroSlideshow = ({ children, scrollToSection, socialItems, stackIcons }) =
       title: 'Video Editor',
       description: 'Editing, motion graphics, and polished post-production for business or personal content.',
       pricing: [
-        { label: '1-15 minutes video', peso: '₱500', usd: '$9' },
-        { label: '15-30 minutes video', peso: '₱1,000', usd: '$19' },
-        { label: '30-60+ minutes video', peso: '₱5,000', usd: '$90' },
+        { label: '1-15 minutes video', peso: '₱500+', usd: '$9+' },
+        { label: '15-30 minutes video', peso: '₱1,000+', usd: '$19+' },
+        { label: '30-60+ minutes video', peso: '₱5,000+', usd: '$90' },
       ],
       note: 'Suitable for promo videos, reels, tutorials, and social media content.',
     },
@@ -1164,8 +1164,8 @@ const HeroSlideshow = ({ children, scrollToSection, socialItems, stackIcons }) =
       title: 'Web & Landing Page Development',
       description: 'Responsive web design and landing pages built to convert and represent your brand.',
       pricing: [
-        { label: 'Landing Page', peso: '₱10,000', usd: '$5,000' },
-        { label: 'Business and Coorporate Websites', peso: '₱30,000', usd: '$10,000' },
+        { label: 'Landing Page', peso: '₱10,000+', usd: '$5,000+' },
+        { label: 'Business and Coorporate Websites', peso: '₱30,000+', usd: '$10,000+' },
         { label: 'E-commerce Websites', peso: 'Not available', usd: 'Not available' },
       ],
       note: 'Great for modern business websites, product pages, and landing pages.',
