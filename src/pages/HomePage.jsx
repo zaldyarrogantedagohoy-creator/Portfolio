@@ -1144,7 +1144,7 @@ const HeroSlideshow = ({ children, scrollToSection, socialItems, stackIcons }) =
       description: 'Setup and activation support for office productivity tools for personal or business use.',
       pricing: [
         { label: '180 Days', peso: '₱500+', usd: 'Not available' },
-        { label: 'Lifetime', peso: '₱1,000', usd: 'Not available' },
+        { label: 'Lifetime', peso: '₱1,000+', usd: 'Not available' },
       ],
       note: 'Ideal for installation, activation, and productivity setup support.',
     },
@@ -1153,9 +1153,9 @@ const HeroSlideshow = ({ children, scrollToSection, socialItems, stackIcons }) =
       title: 'Video Editor',
       description: 'Editing, motion graphics, and polished post-production for business or personal content.',
       pricing: [
-        { label: '1-15 minutes video', peso: '₱500+', usd: '$9+' },
-        { label: '15-30 minutes video', peso: '₱1,000+', usd: '$19+' },
-        { label: '30-60+ minutes video', peso: '₱5,000+', usd: '$90' },
+        { label: '1-15 minutes video', peso: 'Not available', usd: 'Not available' },
+        { label: '15-30 minutes video', peso: 'Not available', usd: 'Not available' },
+        { label: '30-60+ minutes video', peso: 'Not available', usd: 'Not available' },
       ],
       note: 'Suitable for promo videos, reels, tutorials, and social media content.',
     },
