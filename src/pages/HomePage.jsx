@@ -1148,7 +1148,7 @@ const HeroSlideshow = ({ children, scrollToSection, socialItems, stackIcons }) =
         setActiveSlide(prev => (prev + 1) % TOTAL_SLIDES);
         setIsTransitioning(false);
       }, 400);
-    }, 10000);
+    }, 30000);
     return () => clearInterval(autoRef.current);
   }, []);
 
@@ -1161,7 +1161,7 @@ const HeroSlideshow = ({ children, scrollToSection, socialItems, stackIcons }) =
         setActiveSlide(prev => (prev + 1) % TOTAL_SLIDES);
         setIsTransitioning(false);
       }, 400);
-    }, 10000);
+    }, 30000);
   };
 
   const videoRef = useRef(null);
@@ -1313,7 +1313,7 @@ const HeroSlideshow = ({ children, scrollToSection, socialItems, stackIcons }) =
                         <div className="service-card-front">
                           <span className="service-icon-wrapper">
                             <span className="service-icon-inner service-icon-research">
-                              <IconResearch size={84} color="#00ff88" />
+                              <IconResearch size={132} color="#ff4d4d" />
                             </span>
                           </span>
                         </div>
@@ -1343,7 +1343,7 @@ const HeroSlideshow = ({ children, scrollToSection, socialItems, stackIcons }) =
                         <div className="service-card-front">
                           <span className="service-icon-wrapper">
                             <span className="service-icon-inner service-icon-office">
-                              <IconOffice size={84} color="#00e5ff" />
+                              <IconOffice size={132} color="#00e5ff" />
                             </span>
                           </span>
                         </div>
@@ -1373,7 +1373,7 @@ const HeroSlideshow = ({ children, scrollToSection, socialItems, stackIcons }) =
                         <div className="service-card-front">
                           <span className="service-icon-wrapper">
                             <span className="service-icon-inner service-icon-video">
-                              <IconVideo size={84} color="#ffb700" />
+                              <IconVideo size={132} color="#ffb700" />
                             </span>
                           </span>
                         </div>
@@ -1403,7 +1403,7 @@ const HeroSlideshow = ({ children, scrollToSection, socialItems, stackIcons }) =
                         <div className="service-card-front">
                           <span className="service-icon-wrapper">
                             <span className="service-icon-inner service-icon-web">
-                              <IconWebDev size={84} color="#b464ff" />
+                              <IconWebDev size={132} color="#b464ff" />
                             </span>
                           </span>
                         </div>

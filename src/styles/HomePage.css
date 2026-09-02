@@ -969,6 +969,7 @@ section { padding: 4rem 0; }
 
 .service-card-front {
   z-index: 2;
+  background: #ffffff;
 }
 
 .service-card-back {
