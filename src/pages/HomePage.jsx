@@ -2393,7 +2393,7 @@ const SkillCube = ({ skills }) => {
                 </div>
                 <div className="project-meta">
                   <span><IconLayers size={13} color="#00ff88"/> {folderAssets[fc.category].length} samples</span>
-                  <span><IconClock size={13} color="#00ff88"/> 2024</span>
+                  <span><IconClock size={13} color="#00ff88"/> 2026</span>
                 </div>
                 <div className="folder-hint">open samples</div>
               </div>
