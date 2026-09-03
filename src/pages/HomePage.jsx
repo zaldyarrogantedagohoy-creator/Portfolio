@@ -1531,7 +1531,7 @@ const HomePage = () => {
 
   const projectsCount = useCounter(5,    1800, countersVisible);
   const clientsCount  = useCounter(10,   1800, countersVisible);
-  const yearsCount    = useCounter(2,    1200, countersVisible);
+  const yearsCount    = useCounter(1,    1200, countersVisible);
   const coffeeCount   = useCounter(954, 2200, countersVisible);
 
   useEffect(() => {
@@ -2203,7 +2203,7 @@ const SkillCube = ({ skills }) => {
           <div className="stat-divider" aria-hidden="true"></div>
           <div className="stat-item"><span className="stat-number">{clientsCount}<sup>+</sup></span><span className="stat-label">happy_clients</span></div>
           <div className="stat-divider" aria-hidden="true"></div>
-          <div className="stat-item"><span className="stat-number">{yearsCount}<sup>yrs</sup></span><span className="stat-label">experience</span></div>
+          <div className="stat-item"><span className="stat-number">{yearsCount}<sup>yr</sup></span><span className="stat-label">experience</span></div>
           <div className="stat-divider" aria-hidden="true"></div>
           <div className="stat-item"><span className="stat-number">{coffeeCount}</span><span className="stat-label">cups_of_coffee</span></div>
         </div>
