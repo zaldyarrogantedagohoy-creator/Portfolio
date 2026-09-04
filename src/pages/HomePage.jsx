@@ -16,7 +16,7 @@ import webDesignVid from '../assets/Videos/web-design.mp4';
 import certificate1Img from '../assets/images/certificate-1.png';
 import certificate2Img from '../assets/images/certificate-2.png';
 import certificate3Img from '../assets/images/certificate-3.png';
-import certificate4Img from '../assets/images/certificate-4.jpg';
+import certificate4Img from '../assets/images/certificate-4.png';
 import certificate5Img from '../assets/images/certificate-5.png';
 
 const SOCIAL_LINKS = {
