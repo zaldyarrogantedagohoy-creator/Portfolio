@@ -1216,7 +1216,7 @@ const HeroSlideshow = ({ children, scrollToSection, socialItems, stackIcons }) =
   const handleDot  = (i) => { goTo(i, i > activeSlide ? 'next' : 'prev'); resetAuto(); };
 
   useEffect(() => {
-    if (activeSlide === 1 && videoRef.current) {
+    if (activeSlide === 2 && videoRef.current) {
       const video = videoRef.current;
       video.play().catch(() => {
         // autoplay may fail on some browsers; muted is required for autoplay
@@ -1292,8 +1292,8 @@ const HeroSlideshow = ({ children, scrollToSection, socialItems, stackIcons }) =
             </div>
           )}
 
-          {/* ── SLIDE 2: Hero video ── */}
-          {activeSlide === 1 && (
+          {/* ── SLIDE 3: Hero video ── */}
+          {activeSlide === 2 && (
             <div className="hero-slide slide-video">
               <div className="hero-video-wrap">
                 <video
@@ -1330,8 +1330,8 @@ const HeroSlideshow = ({ children, scrollToSection, socialItems, stackIcons }) =
             </div>
           )}
 
-          {/* ── SLIDE 3: Services offered ── */}
-          {activeSlide === 2 && (
+          {/* ── SLIDE 2: Services offered ── */}
+          {activeSlide === 1 && (
             <div className="hero-slide slide-services">
               <div className="services-inner">
                 <video
